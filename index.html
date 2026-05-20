@@ -1,1 +1,2272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>ArcShield Sentinel</title>
 
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+
+  <style>
+    *{
+      box-sizing:border-box;
+      margin:0;
+      padding:0;
+      -webkit-tap-highlight-color:transparent;
+    }
+
+    :root{
+      --text:#eefcff;
+      --muted:#a8cad8;
+      --muted2:#78a4b4;
+      --cyan:#76eaff;
+      --green:#6ff2bd;
+      --yellow:#f8d772;
+      --red:#ff6b84;
+      --deep:#041824;
+      --deep2:#062638;
+      --panel:#0b405d;
+      --panel2:#08344d;
+      --slot:#061d2c;
+      --line:rgba(205,248,255,.18);
+      --line2:rgba(205,248,255,.34);
+      --shadow:0 20px 56px rgba(0,0,0,.24);
+    }
+
+    html,body{
+      width:100%;
+      height:100%;
+      overflow:hidden;
+      background:#020913;
+      color:var(--text);
+      font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+    }
+
+    body{
+      position:fixed;
+      inset:0;
+    }
+
+    button,input,select{
+      font:inherit;
+    }
+
+    button{
+      border:0;
+      cursor:pointer;
+      color:inherit;
+      background:none;
+    }
+
+    a{
+      color:inherit;
+      text-decoration:none;
+    }
+
+    input,select{
+      width:100%;
+      min-height:50px;
+      border-radius:17px;
+      border:1px solid rgba(205,248,255,.17);
+      background:linear-gradient(180deg,rgba(6,31,46,.98),rgba(4,20,31,.98));
+      color:#f4fdff;
+      outline:none;
+      padding:0 14px;
+      font-size:.8rem;
+      font-weight:720;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.035);
+    }
+
+    input::placeholder{
+      color:rgba(229,250,255,.42);
+    }
+
+    input:focus,select:focus{
+      border-color:rgba(118,234,255,.5);
+      box-shadow:0 0 0 4px rgba(118,234,255,.075);
+    }
+
+    .app{
+      position:fixed;
+      inset:0;
+      overflow:hidden;
+      background:#03111b;
+    }
+
+    .workspace{
+      position:absolute;
+      inset:0;
+      overflow:hidden;
+      background:
+        linear-gradient(rgba(255,255,255,.028) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(255,255,255,.022) 1px,transparent 1px),
+        radial-gradient(circle at 50% 20%,rgba(104,229,255,.18),transparent 34%),
+        linear-gradient(180deg,#07324a 0%,#0b6c95 46%,#06354e 100%);
+      background-size:38px 38px,38px 38px,100% 100%,100% 100%;
+      display:flex;
+      flex-direction:column;
+    }
+
+    .top-panel{
+      flex:0 0 auto;
+      width:100%;
+      padding:calc(12px + env(safe-area-inset-top)) 12px 10px;
+      border-bottom:1px solid rgba(205,248,255,.2);
+      background:linear-gradient(180deg,rgba(5,31,45,.98),rgba(8,55,78,.95));
+      box-shadow:0 14px 34px rgba(0,0,0,.18);
+      z-index:8;
+      position:relative;
+    }
+
+    .top-panel::after{
+      content:"";
+      position:absolute;
+      left:0;
+      right:0;
+      bottom:-1px;
+      height:1px;
+      background:linear-gradient(90deg,transparent,rgba(205,248,255,.72),transparent);
+      opacity:.75;
+    }
+
+    .top-grid{
+      max-width:980px;
+      margin:0 auto;
+      display:grid;
+      grid-template-columns:1fr 104px;
+      gap:10px;
+    }
+
+    .monitor{
+      min-height:82px;
+      border-radius:24px;
+      border:1px solid rgba(205,248,255,.2);
+      background:
+        radial-gradient(circle at 12% 26%,rgba(116,234,255,.15),transparent 32%),
+        linear-gradient(180deg,rgba(12,77,105,.94),rgba(5,33,49,.98));
+      padding:13px;
+      overflow:hidden;
+      position:relative;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+    }
+
+    .monitor::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(90deg,transparent,rgba(255,255,255,.06),transparent);
+      transform:translateX(-100%);
+      animation:scanLight 4.4s linear infinite;
+    }
+
+    .monitor-title{
+      position:relative;
+      z-index:1;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:10px;
+    }
+
+    .monitor-title strong{
+      font-size:.72rem;
+      font-weight:950;
+      letter-spacing:.13em;
+      text-transform:uppercase;
+      color:#e8fbff;
+      white-space:nowrap;
+    }
+
+    .monitor-title strong span{
+      color:rgba(232,251,255,.56);
+      margin-right:6px;
+    }
+
+    .network-state{
+      display:inline-flex;
+      align-items:center;
+      gap:7px;
+      color:var(--green);
+      font-size:.64rem;
+      font-weight:950;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      white-space:nowrap;
+    }
+
+    .network-state::before{
+      content:"";
+      width:8px;
+      height:8px;
+      border-radius:50%;
+      background:var(--green);
+      box-shadow:0 0 14px rgba(111,242,189,.78);
+      animation:pulseDot 1.8s ease-in-out infinite;
+    }
+
+    .signal-lines{
+      position:relative;
+      z-index:1;
+      display:grid;
+      gap:7px;
+      opacity:.9;
+    }
+
+    .signal-line{
+      height:7px;
+      border-radius:999px;
+      background:linear-gradient(90deg,rgba(205,248,255,.09),rgba(205,248,255,.27),rgba(111,242,189,.16),rgba(205,248,255,.05));
+    }
+
+    .signal-line:nth-child(1){width:91%}
+    .signal-line:nth-child(2){width:66%}
+    .signal-line:nth-child(3){width:80%}
+
+    .wallet-panel{
+      min-height:82px;
+      border-radius:24px;
+      border:1px solid rgba(205,248,255,.2);
+      background:
+        radial-gradient(circle at 50% 0%,rgba(111,242,189,.14),transparent 42%),
+        linear-gradient(180deg,rgba(11,78,101,.94),rgba(5,33,49,.98));
+      padding:8px;
+      display:grid;
+      place-items:center;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+    }
+
+    .wallet-btn{
+      width:100%;
+      min-height:56px;
+      border-radius:18px;
+      border:1px solid rgba(205,248,255,.18);
+      background:
+        linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.025)),
+        linear-gradient(180deg,rgba(16,86,112,.92),rgba(8,49,67,.98));
+      font-size:.68rem;
+      font-weight:950;
+      letter-spacing:.09em;
+      text-transform:uppercase;
+      color:#effcff;
+      position:relative;
+      overflow:hidden;
+      box-shadow:0 10px 24px rgba(0,0,0,.12), inset 0 1px 0 rgba(255,255,255,.06);
+    }
+
+    .wallet-btn::before{
+      content:"";
+      position:absolute;
+      left:8%;
+      right:8%;
+      top:0;
+      height:44%;
+      border-radius:inherit;
+      background:linear-gradient(180deg,rgba(255,255,255,.12),transparent);
+      opacity:.75;
+    }
+
+    .wallet-btn.connected{
+      border-color:rgba(111,242,189,.34);
+      background:
+        linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.025)),
+        linear-gradient(180deg,rgba(39,116,100,.94),rgba(13,67,74,.98));
+      box-shadow:0 0 22px rgba(111,242,189,.14), 0 10px 24px rgba(0,0,0,.12);
+    }
+
+    .stage{
+      max-width:980px;
+      width:100%;
+      margin:0 auto;
+      flex:1 1 auto;
+      min-height:0;
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+      position:relative;
+    }
+
+    .status-deck{
+      flex:0 0 auto;
+      min-height:118px;
+      border-bottom:1px solid rgba(205,248,255,.12);
+      background:
+        radial-gradient(circle at 50% 40%,rgba(205,248,255,.08),transparent 40%),
+        linear-gradient(180deg,rgba(8,87,118,.06),rgba(5,34,50,.52));
+      display:grid;
+      grid-template-columns:86px 1fr;
+      gap:12px;
+      align-items:center;
+      padding:12px 16px;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .mini-orb{
+      width:76px;
+      height:76px;
+      border-radius:50%;
+      display:grid;
+      place-items:center;
+      position:relative;
+      background:
+        radial-gradient(circle at 50% 50%,rgba(246,255,255,.94) 0%,rgba(116,234,255,.82) 12%,rgba(18,168,207,.42) 38%,rgba(6,44,63,.96) 70%);
+      border:1px solid rgba(222,252,255,.32);
+      box-shadow:0 0 28px rgba(116,234,255,.18), inset 0 0 24px rgba(0,0,0,.33);
+    }
+
+    .mini-orb::before{
+      content:"";
+      position:absolute;
+      inset:-10px;
+      border-radius:50%;
+      border:1px solid rgba(205,248,255,.13);
+    }
+
+    .mini-orb-core{
+      width:38px;
+      height:38px;
+      border-radius:50%;
+      display:grid;
+      place-items:center;
+      background:radial-gradient(circle at 44% 36%,#ffffff,rgba(111,242,189,.86) 24%,rgba(116,234,255,.24) 55%,rgba(5,33,48,.98) 80%);
+      box-shadow:0 0 18px rgba(111,242,189,.22);
+    }
+
+    .mini-orb-core span{
+      color:#041018;
+      font-size:.46rem;
+      font-weight:1000;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+    }
+
+    .status-copy{
+      min-width:0;
+      display:grid;
+      gap:8px;
+    }
+
+    .status-copy strong{
+      color:#eafcff;
+      font-size:.8rem;
+      font-weight:950;
+      letter-spacing:.16em;
+      text-transform:uppercase;
+    }
+
+    .status-copy p{
+      color:rgba(228,247,252,.68);
+      font-size:.72rem;
+      line-height:1.35;
+      font-weight:720;
+    }
+
+    .status-tags{
+      display:flex;
+      flex-wrap:wrap;
+      gap:7px;
+      margin-top:2px;
+    }
+
+    .status-tag{
+      min-height:25px;
+      padding:0 9px;
+      border-radius:999px;
+      border:1px solid rgba(205,248,255,.12);
+      background:rgba(5,27,41,.55);
+      display:inline-flex;
+      align-items:center;
+      color:#dff9ff;
+      font-size:.52rem;
+      font-weight:950;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+    }
+
+    .page-shell{
+      flex:1 1 auto;
+      min-height:0;
+      overflow:hidden;
+      background:linear-gradient(180deg,rgba(7,52,74,.96),rgba(4,31,45,.98) 50%,rgba(4,23,34,.98));
+      display:flex;
+      flex-direction:column;
+    }
+
+    .page-tabs{
+      flex:0 0 auto;
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+      padding:12px 14px 8px;
+      border-bottom:1px solid rgba(205,248,255,.09);
+    }
+
+    .tab-btn{
+      min-height:40px;
+      border-radius:999px;
+      border:1px solid rgba(205,248,255,.14);
+      background:
+        linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.018)),
+        linear-gradient(180deg,rgba(14,77,103,.86),rgba(8,44,60,.94));
+      color:#dff7ff;
+      font-size:.66rem;
+      font-weight:950;
+      letter-spacing:.1em;
+      text-transform:uppercase;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+    }
+
+    .tab-btn.active{
+      border-color:rgba(116,234,255,.32);
+      background:
+        linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.025)),
+        linear-gradient(180deg,rgba(24,106,134,.96),rgba(9,58,78,.98));
+      color:#f4fdff;
+      box-shadow:0 0 18px rgba(116,234,255,.10), inset 0 1px 0 rgba(255,255,255,.05);
+    }
+
+    .page{
+      flex:1 1 auto;
+      min-height:0;
+      overflow-y:auto;
+      overflow-x:hidden;
+      padding:12px 14px calc(22px + env(safe-area-inset-bottom));
+      scrollbar-width:none;
+      display:none;
+      -webkit-overflow-scrolling:touch;
+    }
+
+    .page::-webkit-scrollbar{display:none}
+
+    .page.active{
+      display:block;
+    }
+
+    .stack{
+      display:grid;
+      gap:12px;
+    }
+
+    .module{
+      border-radius:26px;
+      border:1px solid rgba(205,248,255,.14);
+      background:linear-gradient(180deg,rgba(11,63,88,.98),rgba(7,36,52,.98));
+      box-shadow:0 20px 56px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.03);
+      overflow:hidden;
+    }
+
+    .module.flash{
+      animation:flashPanel .65s ease;
+    }
+
+    .module-body{
+      padding:15px;
+      display:grid;
+      gap:13px;
+    }
+
+    .module-head{
+      display:grid;
+      gap:7px;
+    }
+
+    .module-head h3{
+      color:#f2fcff;
+      font-size:1rem;
+      line-height:1.05;
+      font-weight:930;
+      letter-spacing:-.02em;
+    }
+
+    .module-head p{
+      color:rgba(226,246,252,.74);
+      font-size:.76rem;
+      line-height:1.42;
+      font-weight:620;
+    }
+
+    .input-track{
+      display:grid;
+      gap:10px;
+    }
+
+    .main-action{
+      min-height:50px;
+      border-radius:18px;
+      border:1px solid rgba(116,234,255,.22);
+      background:
+        linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.025)),
+        linear-gradient(180deg,rgba(17,88,116,.98),rgba(9,52,72,.98));
+      color:#effcff;
+      font-size:.68rem;
+      font-weight:950;
+      letter-spacing:.1em;
+      text-transform:uppercase;
+      box-shadow:0 12px 24px rgba(0,0,0,.13), inset 0 1px 0 rgba(255,255,255,.05);
+      position:relative;
+      overflow:hidden;
+    }
+
+    .main-action::before,
+    .chip-btn::before,
+    .revoke-btn::before{
+      content:"";
+      position:absolute;
+      left:8%;
+      right:8%;
+      top:0;
+      height:46%;
+      border-radius:inherit;
+      background:linear-gradient(180deg,rgba(255,255,255,.12),transparent);
+      opacity:.65;
+      pointer-events:none;
+    }
+
+    .main-action.warn{
+      border-color:rgba(248,215,114,.24);
+      background:
+        linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.025)),
+        linear-gradient(180deg,rgba(95,81,34,.98),rgba(58,50,24,.98));
+      color:#fff0bf;
+    }
+
+    .chip-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+
+    .chip-btn{
+      position:relative;
+      overflow:hidden;
+      min-height:36px;
+      padding:0 12px;
+      border-radius:999px;
+      border:1px solid rgba(205,248,255,.13);
+      background:
+        linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.018)),
+        linear-gradient(180deg,rgba(14,74,99,.94),rgba(8,42,58,.98));
+      color:#e9fbff;
+      font-size:.6rem;
+      font-weight:920;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      white-space:nowrap;
+      box-shadow:0 8px 18px rgba(0,0,0,.10);
+    }
+
+    .chip-btn.green{
+      border-color:rgba(111,242,189,.18);
+      background:
+        linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.018)),
+        linear-gradient(180deg,rgba(29,95,86,.94),rgba(11,58,60,.98));
+      color:#ecfff7;
+    }
+
+    .chip-btn.red{
+      border-color:rgba(255,107,132,.2);
+      color:#ffd0d8;
+      background:
+        linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.018)),
+        linear-gradient(180deg,rgba(82,46,65,.96),rgba(58,34,46,.98));
+    }
+
+    .result-list{
+      display:grid;
+      gap:9px;
+    }
+
+    .result-item,
+    .stat,
+    .exposure-item{
+      border-radius:20px;
+      border:1px solid rgba(205,248,255,.11);
+      background:linear-gradient(180deg,rgba(6,27,40,.96),rgba(5,21,31,.98));
+      padding:12px;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.02);
+    }
+
+    .result-item span,
+    .stat span{
+      display:block;
+      color:rgba(214,240,248,.62);
+      font-size:.6rem;
+      font-weight:920;
+      letter-spacing:.09em;
+      text-transform:uppercase;
+    }
+
+    .result-item strong,
+    .stat strong{
+      display:block;
+      margin-top:7px;
+      color:#f2fcff;
+      font-size:.78rem;
+      line-height:1.38;
+      font-weight:800;
+      overflow-wrap:anywhere;
+    }
+
+    .wallet-stats{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:9px;
+    }
+
+    .stat.good strong{color:#bbffe4}
+    .stat.warn strong{color:#ffe6a0}
+    .stat.cyan strong{color:#96f0ff}
+
+    .resources{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      justify-content:center;
+    }
+
+    .resource-pill{
+      min-height:36px;
+      padding:0 12px;
+      border-radius:999px;
+      border:1px solid rgba(205,248,255,.12);
+      background:
+        linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.018)),
+        linear-gradient(180deg,rgba(13,68,92,.94),rgba(7,36,52,.98));
+      color:#e4faff;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      font-size:.62rem;
+      font-weight:900;
+      letter-spacing:.09em;
+      text-transform:uppercase;
+      white-space:nowrap;
+    }
+
+    .exposure-head{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:2px;
+    }
+
+    .risk-summary{
+      padding:7px 10px;
+      border-radius:999px;
+      border:1px solid rgba(248,215,114,.18);
+      background:rgba(248,215,114,.07);
+      color:#ffe9a6;
+      font-size:.56rem;
+      font-weight:950;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      white-space:nowrap;
+    }
+
+    .exposure-list{
+      display:grid;
+      gap:10px;
+    }
+
+    .exposure-item{
+      display:grid;
+      gap:10px;
+    }
+
+    .exposure-top{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:10px;
+    }
+
+    .exposure-name strong{
+      display:block;
+      color:#f2fcff;
+      font-size:.86rem;
+      font-weight:900;
+      line-height:1.18;
+    }
+
+    .exposure-name span{
+      display:block;
+      margin-top:5px;
+      color:rgba(226,246,252,.68);
+      font-size:.68rem;
+      line-height:1.35;
+      font-weight:650;
+    }
+
+    .risk-badge{
+      padding:6px 9px;
+      border-radius:999px;
+      border:1px solid rgba(111,242,189,.18);
+      background:rgba(111,242,189,.06);
+      color:var(--green);
+      font-size:.54rem;
+      font-weight:950;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      white-space:nowrap;
+    }
+
+    .risk-badge.medium{
+      border-color:rgba(248,215,114,.22);
+      background:rgba(248,215,114,.08);
+      color:var(--yellow);
+    }
+
+    .risk-badge.high{
+      border-color:rgba(255,107,132,.22);
+      background:rgba(255,107,132,.08);
+      color:#ff90a3;
+    }
+
+    .exposure-meta{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+    }
+
+    .meta-cell{
+      border-radius:16px;
+      border:1px solid rgba(205,248,255,.08);
+      background:rgba(4,19,29,.56);
+      padding:9px;
+    }
+
+    .meta-cell span{
+      display:block;
+      color:rgba(214,240,248,.55);
+      font-size:.54rem;
+      font-weight:920;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+    }
+
+    .meta-cell strong{
+      display:block;
+      margin-top:5px;
+      color:#eafcff;
+      font-size:.68rem;
+      line-height:1.25;
+      overflow-wrap:anywhere;
+    }
+
+    .revoke-btn{
+      position:relative;
+      overflow:hidden;
+      min-height:44px;
+      border-radius:17px;
+      border:1px solid rgba(255,107,132,.22);
+      background:
+        linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.018)),
+        linear-gradient(180deg,rgba(82,46,65,.96),rgba(58,34,46,.98));
+      color:#ffd0d8;
+      font-size:.64rem;
+      font-weight:950;
+      letter-spacing:.09em;
+      text-transform:uppercase;
+      box-shadow:0 8px 18px rgba(0,0,0,.12);
+    }
+
+    .toast{
+      position:fixed;
+      left:50%;
+      bottom:calc(18px + env(safe-area-inset-bottom));
+      transform:translateX(-50%) translateY(18px);
+      opacity:0;
+      z-index:90;
+      pointer-events:none;
+      border:1px solid rgba(205,248,255,.18);
+      background:rgba(4,23,34,.92);
+      color:#effcff;
+      border-radius:999px;
+      padding:10px 14px;
+      font-size:.72rem;
+      font-weight:900;
+      box-shadow:0 20px 60px rgba(0,0,0,.34);
+      transition:.2s ease;
+      white-space:nowrap;
+    }
+
+    .toast.show{
+      opacity:1;
+      transform:translateX(-50%) translateY(0);
+    }
+
+    .cover{
+      position:absolute;
+      inset:0;
+      z-index:40;
+      overflow:hidden;
+      transition:transform .78s cubic-bezier(.22,.88,.25,1);
+      background:
+        radial-gradient(circle at 50% 7%, rgba(255,255,255,.15), transparent 22%),
+        radial-gradient(circle at 50% 38%, rgba(224,253,255,.13), transparent 24%),
+        radial-gradient(circle at 78% 17%, rgba(255,255,255,.07), transparent 16%),
+        radial-gradient(circle at 20% 24%, rgba(255,255,255,.052), transparent 18%),
+        linear-gradient(180deg,#50d9ef 0%, #18b9dc 34%, #0793c0 66%, #045a86 100%);
+    }
+
+    .app.opened .cover{
+      transform:translateX(-104%);
+    }
+
+    .cover::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      background:
+        linear-gradient(rgba(255,255,255,.042) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(255,255,255,.033) 1px,transparent 1px);
+      background-size:42px 42px;
+      opacity:.22;
+      mask-image:linear-gradient(to bottom,rgba(0,0,0,.68),rgba(0,0,0,.92),rgba(0,0,0,.62));
+    }
+
+    .cover::after{
+      content:"";
+      position:absolute;
+      left:10%;
+      right:10%;
+      top:48%;
+      height:1px;
+      background:linear-gradient(90deg,transparent,rgba(255,255,255,.24),transparent);
+      opacity:.34;
+    }
+
+    .cover-glow{
+      position:absolute;
+      inset:-20%;
+      background:
+        radial-gradient(circle at 50% 36%,rgba(255,255,255,.15),transparent 11%),
+        radial-gradient(circle at 50% 42%,rgba(89,240,180,.1),transparent 25%),
+        radial-gradient(circle at 50% 82%,rgba(0,35,72,.28),transparent 44%);
+      pointer-events:none;
+    }
+
+    .cover-frame{
+      position:absolute;
+      inset:58px 30px 40px;
+      border:1px solid rgba(255,255,255,.095);
+      border-radius:34px;
+      pointer-events:none;
+      box-shadow:
+        inset 0 0 18px rgba(255,255,255,.022),
+        0 0 28px rgba(0,76,110,.045);
+    }
+
+    .cover-rings{
+      position:absolute;
+      inset:0;
+      display:grid;
+      place-items:center;
+      pointer-events:none;
+      transform:translateY(-78px);
+    }
+
+    .cover-rings::before{
+      content:"";
+      position:absolute;
+      width:min(64vw,335px);
+      aspect-ratio:1;
+      border-radius:50%;
+      border:1px solid rgba(255,255,255,.095);
+      box-shadow:0 0 24px rgba(255,255,255,.035);
+    }
+
+    .open-tab{
+      position:absolute;
+      top:calc(21px + env(safe-area-inset-top));
+      left:50%;
+      transform:translateX(-50%);
+      z-index:6;
+      min-width:168px;
+      height:40px;
+      padding:0 8px 0 14px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.26);
+      background:
+        linear-gradient(180deg,rgba(255,255,255,.115),rgba(255,255,255,.045));
+      color:#f4feff;
+      display:inline-flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      box-shadow:
+        0 14px 42px rgba(0,55,82,.13),
+        inset 0 1px 0 rgba(255,255,255,.14);
+      backdrop-filter:blur(16px);
+    }
+
+    .open-tab::before{
+      content:"";
+      width:6px;
+      height:6px;
+      border-radius:50%;
+      background:#bbffe4;
+      box-shadow:0 0 12px rgba(146,255,214,.72);
+      flex:0 0 auto;
+    }
+
+    .open-tab .open-text{
+      font-size:.68rem;
+      font-weight:950;
+      letter-spacing:.13em;
+      text-transform:uppercase;
+    }
+
+    .open-tab .open-arrow{
+      width:28px;
+      height:28px;
+      border-radius:50%;
+      display:grid;
+      place-items:center;
+      background:
+        radial-gradient(circle at 35% 35%,rgba(255,255,255,.26),rgba(89,240,180,.18) 30%,rgba(13,186,229,.24) 72%);
+      border:1px solid rgba(146,255,214,.3);
+      box-shadow:
+        0 0 14px rgba(89,240,180,.18),
+        inset 0 1px 0 rgba(255,255,255,.10);
+      font-size:.92rem;
+      line-height:1;
+      animation:openArrow 1.5s ease-in-out infinite;
+    }
+
+    .cover-center{
+      position:absolute;
+      inset:0;
+      z-index:5;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding:84px 24px 90px;
+    }
+
+    .logo-mount{
+      position:relative;
+      width:min(46vw,190px);
+      aspect-ratio:1;
+      border-radius:50%;
+      display:grid;
+      place-items:center;
+      margin-top:-4px;
+      background:
+        radial-gradient(circle at 50% 33%,rgba(255,255,255,.66),rgba(255,255,255,.15) 15%,rgba(8,151,209,.5) 43%,rgba(4,83,124,.88) 74%);
+      border:1px solid rgba(255,255,255,.25);
+      box-shadow:
+        0 20px 46px rgba(0,63,92,.2),
+        0 0 36px rgba(255,255,255,.065),
+        inset 0 0 28px rgba(255,255,255,.05);
+    }
+
+    .logo-mount::before{
+      content:"";
+      position:absolute;
+      inset:-16px;
+      border-radius:50%;
+      border:1px solid rgba(255,255,255,.095);
+    }
+
+    .logo-disc{
+      position:relative;
+      width:72%;
+      aspect-ratio:1;
+      border-radius:50%;
+      background:
+        radial-gradient(circle at 50% 28%,rgba(255,255,255,.075),transparent 27%),
+        linear-gradient(180deg,rgba(3,31,50,.84),rgba(2,17,29,.97));
+      border:1px solid rgba(255,255,255,.13);
+      box-shadow:
+        inset 0 0 24px rgba(255,255,255,.035),
+        0 0 18px rgba(0,0,0,.13);
+      display:grid;
+      place-items:center;
+      overflow:hidden;
+    }
+
+    .logo-disc.has-logo{
+      background-size:76% 76%;
+      background-position:center;
+      background-repeat:no-repeat;
+    }
+
+    .logo-disc.has-logo .logo-monogram{
+      opacity:0;
+    }
+
+    .logo-monogram{
+      position:relative;
+      z-index:2;
+      color:#eafcff;
+      font-size:1.25rem;
+      font-weight:1000;
+      letter-spacing:.16em;
+      text-transform:uppercase;
+      text-shadow:0 0 18px rgba(255,255,255,.16);
+    }
+
+    .logo-monogram::before,
+    .logo-monogram::after{
+      content:"";
+      position:absolute;
+      top:50%;
+      width:24px;
+      height:1px;
+      background:linear-gradient(90deg,transparent,rgba(255,255,255,.46));
+    }
+
+    .logo-monogram::before{
+      right:calc(100% + 10px);
+    }
+
+    .logo-monogram::after{
+      left:calc(100% + 10px);
+      transform:scaleX(-1);
+    }
+
+    .cover-copy{
+      margin-top:56px;
+      max-width:430px;
+    }
+
+    .cover-chip{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:7px 12px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.16);
+      background:rgba(255,255,255,.055);
+      color:rgba(239,253,255,.9);
+      font-size:.66rem;
+      font-weight:950;
+      letter-spacing:.155em;
+      text-transform:uppercase;
+      margin-bottom:14px;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.08);
+    }
+
+    .cover-chip::before{
+      content:"";
+      width:6px;
+      height:6px;
+      border-radius:50%;
+      background:#9fffd9;
+      box-shadow:0 0 11px rgba(159,255,217,.75);
+    }
+
+    .cover-copy h1{
+      font-size:clamp(2.02rem,7.7vw,4.2rem);
+      line-height:.95;
+      letter-spacing:-.075em;
+      color:#f4fdff;
+      text-shadow:0 16px 34px rgba(0,53,90,.2);
+    }
+
+    .cover-copy h1 span{
+      color:#defaff;
+    }
+
+    .cover-copy p{
+      max-width:360px;
+      margin:13px auto 0;
+      color:rgba(235,252,255,.84);
+      font-size:.89rem;
+      line-height:1.48;
+      font-weight:650;
+    }
+
+    .cover-footer{
+      position:absolute;
+      left:0;
+      right:0;
+      bottom:calc(24px + env(safe-area-inset-bottom));
+      z-index:5;
+      display:flex;
+      justify-content:center;
+      color:rgba(236,253,255,.68);
+    }
+
+    .foot-pill{
+      min-width:min(70vw,292px);
+      min-height:34px;
+      padding:0 14px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.105);
+      background:rgba(0,55,85,.1);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.045);
+    }
+
+    .foot-pill::before,
+    .foot-pill::after{
+      content:"";
+      width:24px;
+      height:1px;
+      background:linear-gradient(90deg,transparent,rgba(255,255,255,.3));
+    }
+
+    .foot-pill::after{
+      transform:scaleX(-1);
+    }
+
+    .foot-text{
+      font-size:.56rem;
+      font-weight:950;
+      letter-spacing:.155em;
+      text-transform:uppercase;
+      white-space:nowrap;
+    }
+
+    .close-tab{
+      position:absolute;
+      left:12px;
+      top:calc(98px + env(safe-area-inset-top));
+      z-index:9;
+      width:36px;
+      height:36px;
+      border-radius:15px;
+      border:1px solid rgba(205,248,255,.16);
+      background:
+        linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.03)),
+        rgba(7,35,51,.62);
+      color:#dcf8ff;
+      font-size:1.1rem;
+      font-weight:950;
+      box-shadow:0 10px 26px rgba(0,0,0,.14);
+      backdrop-filter:blur(10px);
+    }
+
+    .app.scan-mode .mini-orb{
+      box-shadow:0 0 34px rgba(116,234,255,.28), inset 0 0 24px rgba(0,0,0,.33);
+      animation:orbScan .9s ease-in-out infinite;
+    }
+
+    .app.wallet-mode .mini-orb-core{
+      background:radial-gradient(circle at 44% 36%,#fff7d7,rgba(248,215,114,.9) 24%,rgba(116,234,255,.18) 55%,rgba(5,33,48,.98) 80%);
+    }
+
+    .app.wallet-mode .mini-orb{
+      box-shadow:0 0 34px rgba(248,215,114,.24), inset 0 0 24px rgba(0,0,0,.33);
+    }
+
+    @keyframes scanLight{
+      to{transform:translateX(100%)}
+    }
+
+    @keyframes pulseDot{
+      0%,100%{opacity:.6; transform:scale(1)}
+      50%{opacity:1; transform:scale(1.08)}
+    }
+
+    @keyframes orbScan{
+      0%,100%{transform:scale(1)}
+      50%{transform:scale(1.045)}
+    }
+
+    @keyframes openArrow{
+      0%,100%{transform:translateX(0)}
+      50%{transform:translateX(3px)}
+    }
+
+    @keyframes flashPanel{
+      0%{box-shadow:0 0 0 rgba(118,234,255,0)}
+      50%{box-shadow:0 0 0 4px rgba(118,234,255,.18)}
+      100%{box-shadow:0 0 0 rgba(118,234,255,0)}
+    }
+
+    @media(min-width:720px){
+      .top-panel{
+        padding-left:22px;
+        padding-right:22px;
+      }
+
+      .top-grid{
+        grid-template-columns:1fr 132px;
+      }
+
+      .status-deck{
+        grid-template-columns:92px 1fr;
+        padding-left:22px;
+        padding-right:22px;
+      }
+
+      .page-tabs,
+      .page{
+        padding-left:22px;
+        padding-right:22px;
+      }
+
+      .stack{
+        max-width:820px;
+        margin:0 auto;
+        grid-template-columns:1fr 1fr;
+        align-items:start;
+      }
+
+      .module.full,
+      .resources,
+      .bottom-wide{
+        grid-column:1 / -1;
+      }
+
+      .cover-copy{
+        margin-top:70px;
+      }
+    }
+
+    @media(max-width:420px){
+      .top-grid{
+        grid-template-columns:1fr 100px;
+      }
+
+      .monitor,
+      .wallet-panel{
+        min-height:82px;
+      }
+
+      .status-deck{
+        grid-template-columns:80px 1fr;
+        min-height:112px;
+      }
+
+      .mini-orb{
+        width:70px;
+        height:70px;
+      }
+
+      .mini-orb-core{
+        width:35px;
+        height:35px;
+      }
+
+      .exposure-meta{
+        grid-template-columns:1fr;
+      }
+
+      .wallet-stats{
+        gap:9px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app" class="app">
+    <section class="workspace">
+      <button id="closeBtn" class="close-tab" type="button">‹</button>
+
+      <header class="top-panel">
+        <div class="top-grid">
+          <div class="monitor">
+            <div class="monitor-title">
+              <strong><span>ARC</span> Monitor</strong>
+              <span id="topStatus" class="network-state">Ready</span>
+            </div>
+
+            <div class="signal-lines">
+              <div class="signal-line"></div>
+              <div class="signal-line"></div>
+              <div class="signal-line"></div>
+            </div>
+          </div>
+
+          <div class="wallet-panel">
+            <button id="walletBtn" class="wallet-btn" type="button">Wallet</button>
+          </div>
+        </div>
+      </header>
+
+      <main class="stage">
+        <section class="status-deck">
+          <div class="mini-orb">
+            <div class="mini-orb-core">
+              <span>Shield</span>
+            </div>
+          </div>
+
+          <div class="status-copy">
+            <strong id="orbTitle">Sentinel online</strong>
+            <p id="orbSub">Scanner is ready. Paste a contract or open Revoke Center.</p>
+
+            <div class="status-tags">
+              <span class="status-tag">Risk</span>
+              <span class="status-tag">Token</span>
+              <span class="status-tag">Wallet</span>
+              <span class="status-tag">Revoke</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="page-shell">
+          <nav class="page-tabs">
+            <button id="scannerTab" class="tab-btn active" type="button">Scanner</button>
+            <button id="revokeTab" class="tab-btn" type="button">Revoke Center</button>
+          </nav>
+
+          <section id="scannerPage" class="page active">
+            <div class="stack">
+              <div id="contractModule" class="module">
+                <div class="module-body">
+                  <div class="module-head">
+                    <h3>Contract Scan</h3>
+                    <p>Paste a token, contract or dapp address to run a basic ArcShield check.</p>
+                  </div>
+
+                  <div class="input-track">
+                    <input id="contractInput" type="text" placeholder="Paste contract address 0x..." />
+                    <button id="contractBtn" class="main-action" type="button">Scan Contract</button>
+                  </div>
+
+                  <div class="chip-row">
+                    <button id="tryUsdcBtn" class="chip-btn green" type="button">Try USDC</button>
+                    <button id="tryEurcBtn" class="chip-btn green" type="button">Try EURC</button>
+                    <button id="clearContractBtn" class="chip-btn" type="button">Clear</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="module">
+                <div class="module-body">
+                  <div class="module-head">
+                    <h3>Dapp Snapshot</h3>
+                    <p>Preview dapp safety signals using website, GitHub and contract presence.</p>
+                  </div>
+
+                  <div class="result-list">
+                    <div class="result-item">
+                      <span>Website</span>
+                      <strong>Provided</strong>
+                    </div>
+
+                    <div class="result-item">
+                      <span>GitHub</span>
+                      <strong>Provided</strong>
+                    </div>
+
+                    <div class="result-item">
+                      <span>Category</span>
+                      <strong>Security / Tooling</strong>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="module full">
+                <div class="module-body">
+                  <div class="module-head">
+                    <h3>Scanner Result</h3>
+                    <p>Technical result preview for the selected target.</p>
+                  </div>
+
+                  <div class="result-list">
+                    <div class="result-item">
+                      <span>Status</span>
+                      <strong id="resultStatus">Waiting for scan.</strong>
+                    </div>
+
+                    <div class="result-item">
+                      <span>Target</span>
+                      <strong id="resultTarget">No address scanned yet.</strong>
+                    </div>
+
+                    <div class="result-item">
+                      <span>Recommendation</span>
+                      <strong id="resultRecommendation">Paste a contract address to start.</strong>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="module full">
+                <div class="module-body">
+                  <div class="module-head">
+                    <h3>Official Resources</h3>
+                    <p>Always verify with official Arc and Circle resources before interacting.</p>
+                  </div>
+
+                  <div class="resources">
+                    <a class="resource-pill" href="https://www.arc.network/" target="_blank" rel="noopener noreferrer">Arc</a>
+                    <a class="resource-pill" href="https://docs.arc.network/" target="_blank" rel="noopener noreferrer">Docs</a>
+                    <a class="resource-pill" href="https://testnet.arcscan.app/" target="_blank" rel="noopener noreferrer">ArcScan</a>
+                    <a class="resource-pill" href="https://x.com/arc" target="_blank" rel="noopener noreferrer">Arc X</a>
+                    <a class="resource-pill" href="https://discord.com/invite/buildonarc" target="_blank" rel="noopener noreferrer">Discord</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section id="revokePage" class="page">
+            <div class="stack">
+              <div class="module full">
+                <div class="module-body">
+                  <div class="module-head">
+                    <h3>Wallet Exposure</h3>
+                    <p>Connect wallet, paste spender, check real USDC/EURC allowance and revoke if needed.</p>
+                  </div>
+
+                  <div class="input-track">
+                    <input id="spenderInput" type="text" placeholder="Paste spender / dapp contract 0x..." />
+                    <select id="revokeTokenSelect">
+                      <option value="USDC">USDC official</option>
+                      <option value="EURC">EURC official</option>
+                    </select>
+                    <button id="checkAllowanceBtn" class="main-action warn" type="button">Check Allowance</button>
+                  </div>
+
+                  <div class="chip-row">
+                    <button id="useLastContractBtn" class="chip-btn green" type="button">Use last contract</button>
+                    <button id="clearSpenderBtn" class="chip-btn" type="button">Clear</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="module full">
+                <div class="module-body">
+                  <div class="module-head">
+                    <h3>Wallet Status</h3>
+                    <p id="walletStatusText">Connect wallet to show real Arc Testnet balances and allowance status.</p>
+                  </div>
+
+                  <div class="wallet-stats">
+                    <div class="stat cyan">
+                      <span>Wallet</span>
+                      <strong id="statWallet">Not connected</strong>
+                    </div>
+
+                    <div class="stat" id="statNetworkBox">
+                      <span>Network</span>
+                      <strong id="statNetwork">Unknown</strong>
+                    </div>
+
+                    <div class="stat good">
+                      <span>USDC</span>
+                      <strong id="statUsdc">--</strong>
+                    </div>
+
+                    <div class="stat good">
+                      <span>EURC</span>
+                      <strong id="statEurc">--</strong>
+                    </div>
+
+                    <div class="stat cyan">
+                      <span>Approval token</span>
+                      <strong id="statApprovalToken">--</strong>
+                    </div>
+
+                    <div class="stat warn">
+                      <span>Allowance</span>
+                      <strong id="statAllowance">Not checked</strong>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="module full">
+                <div class="module-body">
+                  <div class="exposure-head">
+                    <div class="module-head">
+                      <h3>Connected Dapps</h3>
+                      <p>Wallet site sessions are controlled by your wallet. ArcShield focuses on real on-chain approvals.</p>
+                    </div>
+                    <div class="risk-summary">Info</div>
+                  </div>
+
+                  <div class="exposure-list">
+                    <div class="exposure-item">
+                      <div class="exposure-top">
+                        <div class="exposure-name">
+                          <strong>Wallet sessions</strong>
+                          <span>Some dapp connections are off-chain sessions inside your wallet/browser and cannot be fully listed by RPC alone.</span>
+                        </div>
+                        <div class="risk-badge medium">Wallet side</div>
+                      </div>
+
+                      <div class="exposure-meta">
+                        <div class="meta-cell">
+                          <span>Action</span>
+                          <strong>Review connected sites inside your wallet.</strong>
+                        </div>
+                        <div class="meta-cell">
+                          <span>ArcShield</span>
+                          <strong>Checks real token approvals.</strong>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="module full">
+                <div class="module-body">
+                  <div class="exposure-head">
+                    <div class="module-head">
+                      <h3>Token Approvals</h3>
+                      <p>Real allowance checks appear here. Revoke sends approve(spender, 0) after confirmation.</p>
+                    </div>
+                    <div id="approvalCount" class="risk-summary">0 items</div>
+                  </div>
+
+                  <div id="approvalList" class="exposure-list">
+                    <div class="exposure-item">
+                      <div class="exposure-top">
+                        <div class="exposure-name">
+                          <strong>No approval checked yet</strong>
+                          <span>Paste a spender address above and press Check Allowance.</span>
+                        </div>
+                        <div class="risk-badge medium">Waiting</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </section>
+      </main>
+    </section>
+
+    <section class="cover">
+      <div class="cover-glow"></div>
+      <div class="cover-frame"></div>
+      <div class="cover-rings"></div>
+
+      <button id="openBtn" class="open-tab" type="button">
+        <span class="open-text">Open scanner</span>
+        <span class="open-arrow">→</span>
+      </button>
+
+      <div class="cover-center">
+        <div class="logo-mount">
+          <div id="logoDisc" class="logo-disc">
+            <div class="logo-monogram">AS</div>
+          </div>
+        </div>
+
+        <div class="cover-copy">
+          <div class="cover-chip">Safety layer online</div>
+          <h1>ArcShield <span>Sentinel</span></h1>
+          <p>Scan tokens, contracts and wallet exposure before interacting on Arc Testnet.</p>
+        </div>
+      </div>
+
+      <div class="cover-footer">
+        <div class="foot-pill">
+          <div class="foot-text">Independent testnet safety shell</div>
+        </div>
+      </div>
+    </section>
+
+    <div id="toast" class="toast">Ready</div>
+  </div>
+
+  <script>
+    const ARC_CHAIN_ID = 5042002;
+    const ARC_CHAIN_HEX = "0x4cef52";
+    const ARC_RPC = "https://rpc.testnet.arc.network";
+    const ARC_EXPLORER = "https://testnet.arcscan.app";
+
+    const USDC_ADDRESS = "0x3600000000000000000000000000000000000000";
+    const EURC_ADDRESS = "0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a";
+
+    const ERC20_META_ABI = [
+      "function name() view returns (string)",
+      "function symbol() view returns (string)",
+      "function decimals() view returns (uint8)",
+      "function totalSupply() view returns (uint256)"
+    ];
+
+    const ERC20_BALANCE_ABI = [
+      "function balanceOf(address) view returns (uint256)",
+      "function decimals() view returns (uint8)"
+    ];
+
+    const ERC20_ALLOWANCE_ABI = [
+      "function allowance(address owner,address spender) view returns (uint256)",
+      "function decimals() view returns (uint8)",
+      "function approve(address spender,uint256 value) returns (bool)"
+    ];
+
+    const TOKENS = {
+      USDC:{address:USDC_ADDRESS, symbol:"USDC", decimals:6},
+      EURC:{address:EURC_ADDRESS, symbol:"EURC", decimals:6}
+    };
+
+    const app = document.getElementById("app");
+    const openBtn = document.getElementById("openBtn");
+    const closeBtn = document.getElementById("closeBtn");
+    const walletBtn = document.getElementById("walletBtn");
+    const toast = document.getElementById("toast");
+
+    const scannerTab = document.getElementById("scannerTab");
+    const revokeTab = document.getElementById("revokeTab");
+    const scannerPage = document.getElementById("scannerPage");
+    const revokePage = document.getElementById("revokePage");
+    const contractModule = document.getElementById("contractModule");
+
+    const topStatus = document.getElementById("topStatus");
+    const orbTitle = document.getElementById("orbTitle");
+    const orbSub = document.getElementById("orbSub");
+    const logoDisc = document.getElementById("logoDisc");
+
+    const contractInput = document.getElementById("contractInput");
+    const contractBtn = document.getElementById("contractBtn");
+    const tryUsdcBtn = document.getElementById("tryUsdcBtn");
+    const tryEurcBtn = document.getElementById("tryEurcBtn");
+    const clearContractBtn = document.getElementById("clearContractBtn");
+
+    const spenderInput = document.getElementById("spenderInput");
+    const revokeTokenSelect = document.getElementById("revokeTokenSelect");
+    const checkAllowanceBtn = document.getElementById("checkAllowanceBtn");
+    const useLastContractBtn = document.getElementById("useLastContractBtn");
+    const clearSpenderBtn = document.getElementById("clearSpenderBtn");
+
+    const resultStatus = document.getElementById("resultStatus");
+    const resultTarget = document.getElementById("resultTarget");
+    const resultRecommendation = document.getElementById("resultRecommendation");
+
+    const statWallet = document.getElementById("statWallet");
+    const statNetwork = document.getElementById("statNetwork");
+    const statNetworkBox = document.getElementById("statNetworkBox");
+    const walletStatusText = document.getElementById("walletStatusText");
+    const statUsdc = document.getElementById("statUsdc");
+    const statEurc = document.getElementById("statEurc");
+    const statApprovalToken = document.getElementById("statApprovalToken");
+    const statAllowance = document.getElementById("statAllowance");
+    const approvalList = document.getElementById("approvalList");
+    const approvalCount = document.getElementById("approvalCount");
+
+    const state = {
+      connected:false,
+      account:null,
+      chainId:null,
+      provider:null,
+      signer:null,
+      lastScannedContract:null,
+      checkedApprovals:[]
+    };
+
+    const readProvider = new ethers.providers.JsonRpcProvider(ARC_RPC);
+
+    function isAddress(value){
+      return /^0x[a-fA-F0-9]{40}$/.test(String(value || "").trim());
+    }
+
+    function shortAddress(address){
+      if(!address) return "Not connected";
+      return address.slice(0,6) + "..." + address.slice(-4);
+    }
+
+    function explorerAddress(address){
+      return ARC_EXPLORER + "/address/" + address;
+    }
+
+    function showToast(message){
+      toast.textContent = message;
+      toast.classList.add("show");
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => toast.classList.remove("show"), 1500);
+    }
+
+    function setMode(mode,title,sub,status){
+      app.classList.remove("scan-mode","wallet-mode");
+      if(mode) app.classList.add(mode);
+      orbTitle.textContent = title;
+      orbSub.textContent = sub;
+      topStatus.textContent = status;
+    }
+
+    function setResult(status,target,recommendation){
+      resultStatus.textContent = status;
+      resultTarget.textContent = target;
+      resultRecommendation.textContent = recommendation;
+    }
+
+    function setPage(name){
+      const isRevoke = name === "revoke";
+
+      scannerTab.classList.toggle("active", !isRevoke);
+      revokeTab.classList.toggle("active", isRevoke);
+
+      scannerPage.classList.toggle("active", !isRevoke);
+      revokePage.classList.toggle("active", isRevoke);
+
+      if(isRevoke){
+        revokePage.scrollTop = 0;
+        setMode("wallet-mode","Revoke center","Check real approvals","Caution");
+      }else{
+        scannerPage.scrollTop = 0;
+        contractModule.classList.remove("flash");
+        void contractModule.offsetWidth;
+        contractModule.classList.add("flash");
+        setMode(null,"Scanner ready","Contract module is active","Ready");
+      }
+    }
+
+    function preloadLogo(){
+      const img = new Image();
+      img.onload = function(){
+        logoDisc.classList.add("has-logo");
+        logoDisc.style.backgroundImage =
+          "url('logo.png'), linear-gradient(180deg,rgba(3,31,50,.84),rgba(2,17,29,.97))";
+      };
+      img.onerror = function(){
+        logoDisc.classList.remove("has-logo");
+      };
+      img.src = "logo.png";
+    }
+
+    function formatAmount(value, decimals){
+      try{
+        const raw = ethers.utils.formatUnits(value, decimals);
+        const parts = raw.split(".");
+        const whole = parts[0];
+        const frac = (parts[1] || "").slice(0,4).replace(/0+$/,"");
+        return frac ? whole + "." + frac : whole;
+      }catch(e){
+        return "0";
+      }
+    }
+
+    async function switchToArc(){
+      if(!window.ethereum) return false;
+
+      try{
+        await window.ethereum.request({
+          method:"wallet_switchEthereumChain",
+          params:[{chainId:ARC_CHAIN_HEX}]
+        });
+        return true;
+      }catch(switchError){
+        if(switchError && switchError.code === 4902){
+          try{
+            await window.ethereum.request({
+              method:"wallet_addEthereumChain",
+              params:[{
+                chainId:ARC_CHAIN_HEX,
+                chainName:"Arc Testnet",
+                nativeCurrency:{name:"USDC",symbol:"USDC",decimals:18},
+                rpcUrls:[ARC_RPC],
+                blockExplorerUrls:[ARC_EXPLORER]
+              }]
+            });
+            return true;
+          }catch(addError){
+            return false;
+          }
+        }
+        return false;
+      }
+    }
+
+    async function connectWallet(){
+      if(state.connected){
+        state.connected = false;
+        state.account = null;
+        state.chainId = null;
+        state.provider = null;
+        state.signer = null;
+        updateWalletUI();
+        showToast("Wallet disconnected locally");
+        return;
+      }
+
+      if(!window.ethereum){
+        showToast("Wallet provider not found");
+        setMode("wallet-mode","Wallet unavailable","Open in wallet browser","Caution");
+        return;
+      }
+
+      try{
+        const accounts = await window.ethereum.request({method:"eth_requestAccounts"});
+        state.provider = new ethers.providers.Web3Provider(window.ethereum,"any");
+        state.signer = state.provider.getSigner();
+        state.account = accounts && accounts[0] ? accounts[0] : await state.signer.getAddress();
+
+        const network = await state.provider.getNetwork();
+        state.chainId = Number(network.chainId);
+
+        if(state.chainId !== ARC_CHAIN_ID){
+          const switched = await switchToArc();
+          if(switched){
+            state.provider = new ethers.providers.Web3Provider(window.ethereum,"any");
+            state.signer = state.provider.getSigner();
+            const updatedNetwork = await state.provider.getNetwork();
+            state.chainId = Number(updatedNetwork.chainId);
+          }
+        }
+
+        state.connected = true;
+        updateWalletUI();
+        await refreshWalletBalances();
+
+        setMode("wallet-mode","Wallet connected",shortAddress(state.account),state.chainId === ARC_CHAIN_ID ? "Ready" : "Caution");
+        showToast(state.chainId === ARC_CHAIN_ID ? "Connected on Arc Testnet" : "Wrong network");
+      }catch(e){
+        showToast("Connection rejected");
+      }
+    }
+
+    function updateWalletUI(){
+      if(!state.connected || !state.account){
+        walletBtn.textContent = "Wallet";
+        walletBtn.classList.remove("connected");
+        statWallet.textContent = "Not connected";
+        statNetwork.textContent = "Unknown";
+        statNetworkBox.classList.remove("good","warn");
+        walletStatusText.textContent = "Connect wallet to show real Arc Testnet balances and allowance status.";
+        statUsdc.textContent = "--";
+        statEurc.textContent = "--";
+        return;
+      }
+
+      walletBtn.textContent = "Disconnect";
+      walletBtn.classList.add("connected");
+      statWallet.textContent = shortAddress(state.account);
+
+      if(state.chainId === ARC_CHAIN_ID){
+        statNetwork.textContent = "Arc Testnet";
+        statNetworkBox.classList.add("good");
+        statNetworkBox.classList.remove("warn");
+        walletStatusText.textContent = "Wallet connected on Arc Testnet. Balances and allowances can be read.";
+      }else{
+        statNetwork.textContent = "Wrong network";
+        statNetworkBox.classList.add("warn");
+        statNetworkBox.classList.remove("good");
+        walletStatusText.textContent = "Wallet connected, but not on Arc Testnet. Switch network for live reads.";
+      }
+    }
+
+    async function readTokenBalance(tokenAddress, wallet){
+      try{
+        const token = new ethers.Contract(tokenAddress, ERC20_BALANCE_ABI, readProvider);
+        const decimals = await token.decimals();
+        const balance = await token.balanceOf(wallet);
+        return formatAmount(balance, decimals);
+      }catch(e){
+        return "0";
+      }
+    }
+
+    async function refreshWalletBalances(){
+      if(!state.account){
+        statUsdc.textContent = "--";
+        statEurc.textContent = "--";
+        return;
+      }
+
+      statUsdc.textContent = "Reading...";
+      statEurc.textContent = "Reading...";
+
+      const usdc = await readTokenBalance(USDC_ADDRESS, state.account);
+      const eurc = await readTokenBalance(EURC_ADDRESS, state.account);
+
+      statUsdc.textContent = usdc;
+      statEurc.textContent = eurc;
+    }
+
+    function stableLike(name,symbol){
+      const n = String(name || "").toLowerCase();
+      const s = String(symbol || "").toUpperCase();
+      return s === "USDC" || s === "EURC" || n.includes("usdc") || n.includes("eurc") || n.includes("usd coin") || n.includes("euro coin");
+    }
+
+    async function scanContract(){
+      const address = contractInput.value.trim();
+
+      setMode("scan-mode","Scanning contract","Reading Arc Testnet RPC","Scanning");
+
+      if(!address){
+        setResult("Missing contract","No address provided","Paste a public contract address before scanning.");
+        showToast("Paste contract first");
+        setMode("scan-mode","Missing target","Paste contract first","Caution");
+        return;
+      }
+
+      if(!isAddress(address)){
+        setResult("Invalid address",address,"This is not a valid EVM address. Do not interact before verifying.");
+        showToast("Invalid address");
+        setMode("scan-mode","Invalid target","Address format failed","Caution");
+        return;
+      }
+
+      state.lastScannedContract = address;
+      resultStatus.textContent = "Reading contract...";
+      resultTarget.textContent = address;
+      resultRecommendation.textContent = "Checking code and ERC20 metadata on Arc Testnet.";
+
+      try{
+        const code = await readProvider.getCode(address);
+
+        if(!code || code === "0x"){
+          setResult("No contract code",address,"This address has no deployed contract code on Arc Testnet. Do not treat it as a token or dapp contract.");
+          setMode("scan-mode","No contract code","EOA or empty address","Caution");
+          showToast("No contract code");
+          return;
+        }
+
+        const known = address.toLowerCase() === USDC_ADDRESS.toLowerCase()
+          ? "USDC"
+          : address.toLowerCase() === EURC_ADDRESS.toLowerCase()
+            ? "EURC"
+            : null;
+
+        const token = new ethers.Contract(address, ERC20_META_ABI, readProvider);
+        const info = {
+          name:null,
+          symbol:null,
+          decimals:null,
+          totalSupply:null
+        };
+
+        try{ info.name = await token.name(); }catch(e){}
+        try{ info.symbol = await token.symbol(); }catch(e){}
+        try{ info.decimals = await token.decimals(); }catch(e){}
+        try{ info.totalSupply = await token.totalSupply(); }catch(e){}
+
+        if(info.symbol || info.name || info.decimals !== null){
+          const supply = info.totalSupply && info.decimals !== null
+            ? formatAmount(info.totalSupply, info.decimals)
+            : "Unavailable";
+
+          if(known){
+            setResult(
+              "Known Arc asset",
+              address,
+              known + " verified by local trusted list. Metadata: " +
+              (info.name || "Unknown name") + " / " +
+              (info.symbol || "Unknown symbol") + " / decimals " +
+              (info.decimals ?? "unknown") + " / supply " + supply +
+              ". Always verify with official Arc and Circle resources."
+            );
+            setMode("scan-mode",known + " detected","Known Arc asset","Ready");
+            showToast(known + " detected");
+            return;
+          }
+
+          if(stableLike(info.name, info.symbol)){
+            setResult(
+              "Possible fake stable",
+              address,
+              "This token uses stable-like metadata but is not the official USDC/EURC address in ArcShield. Name: " +
+              (info.name || "Unknown") + ", symbol: " +
+              (info.symbol || "Unknown") + ", decimals: " +
+              (info.decimals ?? "unknown") + ". Verify carefully on ArcScan."
+            );
+            setMode("scan-mode","Possible fake stable","Manual review needed","Caution");
+            showToast("Possible fake stable");
+            return;
+          }
+
+          setResult(
+            "Custom ERC20 token",
+            address,
+            "ERC20 metadata found. Name: " +
+            (info.name || "Unknown") + ", symbol: " +
+            (info.symbol || "Unknown") + ", decimals: " +
+            (info.decimals ?? "unknown") + ", supply: " +
+            supply + ". Review source, deployer, project links and ArcScan before interacting."
+          );
+          setMode("scan-mode","ERC20 detected","Custom token","Ready");
+          showToast("ERC20 token detected");
+          return;
+        }
+
+        setResult(
+          "Contract detected",
+          address,
+          "Contract code exists, but ERC20 metadata was not readable. This may be a dapp contract, pool, router or non-token contract. Review source and interactions on ArcScan."
+        );
+        setMode("scan-mode","Contract detected","Non-token or custom contract","Ready");
+        showToast("Contract detected");
+      }catch(e){
+        setResult("RPC read failed",address,"Could not read this contract through Arc Testnet RPC. Check network status and try again.");
+        setMode("scan-mode","RPC failed","Try again","Caution");
+        showToast("RPC read failed");
+      }
+    }
+
+    async function checkAllowance(){
+      if(!state.connected || !state.account || !state.signer){
+        showToast("Connect wallet first");
+        setMode("wallet-mode","Wallet required","Connect wallet first","Caution");
+        return;
+      }
+
+      if(state.chainId !== ARC_CHAIN_ID){
+        showToast("Switch to Arc Testnet");
+        setMode("wallet-mode","Wrong network","Switch to Arc Testnet","Caution");
+        return;
+      }
+
+      const spender = spenderInput.value.trim();
+
+      if(!spender){
+        showToast("Paste spender first");
+        setMode("wallet-mode","Missing spender","Paste spender contract","Caution");
+        return;
+      }
+
+      if(!isAddress(spender)){
+        showToast("Invalid spender");
+        setMode("wallet-mode","Invalid spender","Address format failed","Caution");
+        return;
+      }
+
+      const selected = revokeTokenSelect.value;
+      const tokenInfo = TOKENS[selected];
+
+      statApprovalToken.textContent = selected;
+      statAllowance.textContent = "Reading...";
+
+      try{
+        const token = new ethers.Contract(tokenInfo.address, ERC20_ALLOWANCE_ABI, readProvider);
+        const decimals = await token.decimals();
+        const allowance = await token.allowance(state.account, spender);
+        const formatted = formatAmount(allowance, decimals);
+
+        statAllowance.textContent = formatted;
+
+        const hasAllowance = allowance.gt(0);
+        const risk = hasAllowance ? "Caution" : "Low";
+        const riskClass = hasAllowance ? "medium" : "";
+        const actionText = hasAllowance ? "Revoke" : "No revoke";
+
+        state.checkedApprovals.unshift({
+          token:selected,
+          tokenAddress:tokenInfo.address,
+          spender,
+          allowance,
+          formatted,
+          risk,
+          riskClass,
+          actionText
+        });
+
+        renderApprovals();
+        setMode("wallet-mode","Allowance checked",selected + " → " + shortAddress(spender),hasAllowance ? "Caution" : "Ready");
+        showToast(hasAllowance ? "Allowance found" : "No allowance");
+      }catch(e){
+        statAllowance.textContent = "Read failed";
+        showToast("Allowance read failed");
+        setMode("wallet-mode","Allowance failed","Check spender/token","Caution");
+      }
+    }
+
+    function renderApprovals(){
+      approvalCount.textContent = state.checkedApprovals.length + " item" + (state.checkedApprovals.length === 1 ? "" : "s");
+
+      if(!state.checkedApprovals.length){
+        approvalList.innerHTML = `
+          <div class="exposure-item">
+            <div class="exposure-top">
+              <div class="exposure-name">
+                <strong>No approval checked yet</strong>
+                <span>Paste a spender address above and press Check Allowance.</span>
+              </div>
+              <div class="risk-badge medium">Waiting</div>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      approvalList.innerHTML = state.checkedApprovals.map((item,index) => {
+        const canRevoke = item.allowance && item.allowance.gt(0);
+        return `
+          <div class="exposure-item">
+            <div class="exposure-top">
+              <div class="exposure-name">
+                <strong>${item.token} approval</strong>
+                <span>Spender ${shortAddress(item.spender)} checked on Arc Testnet.</span>
+              </div>
+              <div class="risk-badge ${item.riskClass}">${item.risk}</div>
+            </div>
+
+            <div class="exposure-meta">
+              <div class="meta-cell">
+                <span>Spender</span>
+                <strong>${item.spender}</strong>
+              </div>
+              <div class="meta-cell">
+                <span>Allowance</span>
+                <strong>${item.formatted} ${item.token}</strong>
+              </div>
+            </div>
+
+            <button class="revoke-btn ${canRevoke ? "" : "disabled"}" type="button" data-index="${index}" ${canRevoke ? "" : "disabled"}>${item.actionText}</button>
+          </div>
+        `;
+      }).join("");
+
+      document.querySelectorAll(".revoke-btn[data-index]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const index = Number(btn.getAttribute("data-index"));
+          revokeApproval(index);
+        });
+      });
+    }
+
+    async function revokeApproval(index){
+      const item = state.checkedApprovals[index];
+
+      if(!item) return;
+
+      if(!state.connected || !state.signer){
+        showToast("Connect wallet first");
+        return;
+      }
+
+      if(state.chainId !== ARC_CHAIN_ID){
+        showToast("Switch to Arc Testnet");
+        return;
+      }
+
+      const ok = confirm(
+        "Prepare real revoke transaction?\n\n" +
+        "Token: " + item.token + "\n" +
+        "Spender: " + item.spender + "\n\n" +
+        "This will call approve(spender, 0). Confirm only if you understand this permission."
+      );
+
+      if(!ok) return;
+
+      try{
+        setMode("wallet-mode","Revoking approval","Confirm in wallet","Caution");
+        showToast("Confirm revoke in wallet");
+
+        const token = new ethers.Contract(item.tokenAddress, ERC20_ALLOWANCE_ABI, state.signer);
+        const tx = await token.approve(item.spender, 0);
+
+        showToast("Revoke sent");
+        item.actionText = "Pending";
+        renderApprovals();
+
+        await tx.wait();
+
+        item.allowance = ethers.BigNumber.from(0);
+        item.formatted = "0";
+        item.risk = "Low";
+        item.riskClass = "";
+        item.actionText = "No revoke";
+
+        renderApprovals();
+        statAllowance.textContent = "0";
+        setMode("wallet-mode","Revoke complete","Approval set to zero","Ready");
+        showToast("Revoke complete");
+      }catch(e){
+        setMode("wallet-mode","Revoke failed","Transaction rejected or failed","Caution");
+        showToast("Revoke failed");
+      }
+    }
+
+    function useLastContract(){
+      if(!state.lastScannedContract){
+        showToast("No contract scanned yet");
+        return;
+      }
+
+      spenderInput.value = state.lastScannedContract;
+      setPage("revoke");
+      showToast("Last contract loaded");
+    }
+
+    function clearContract(){
+      contractInput.value = "";
+      state.lastScannedContract = null;
+      setResult("Waiting for scan.","No address scanned yet.","Paste a contract address to start.");
+      setMode(null,"Scanner ready","Contract module is active","Ready");
+    }
+
+    function clearSpender(){
+      spenderInput.value = "";
+      statApprovalToken.textContent = "--";
+      statAllowance.textContent = "Not checked";
+      setMode("wallet-mode","Revoke center","Check real approvals","Caution");
+    }
+
+    openBtn.addEventListener("click", () => {
+      app.classList.add("opened");
+      setMode(null,"Scanner ready","Contract module is active","Ready");
+    });
+
+    closeBtn.addEventListener("click", () => {
+      app.classList.remove("opened");
+      setPage("scanner");
+      setMode(null,"Sentinel idle","Ready for shell preview","Idle");
+    });
+
+    walletBtn.addEventListener("click", connectWallet);
+
+    scannerTab.addEventListener("click", () => setPage("scanner"));
+    revokeTab.addEventListener("click", () => setPage("revoke"));
+
+    contractBtn.addEventListener("click", scanContract);
+
+    tryUsdcBtn.addEventListener("click", () => {
+      contractInput.value = USDC_ADDRESS;
+      scanContract();
+    });
+
+    tryEurcBtn.addEventListener("click", () => {
+      contractInput.value = EURC_ADDRESS;
+      scanContract();
+    });
+
+    clearContractBtn.addEventListener("click", clearContract);
+
+    checkAllowanceBtn.addEventListener("click", checkAllowance);
+    useLastContractBtn.addEventListener("click", useLastContract);
+    clearSpenderBtn.addEventListener("click", clearSpender);
+
+    if(window.ethereum){
+      window.ethereum.on?.("accountsChanged", async accounts => {
+        if(!accounts || !accounts[0]){
+          state.connected = false;
+          state.account = null;
+          state.chainId = null;
+          state.provider = null;
+          state.signer = null;
+          updateWalletUI();
+          return;
+        }
+
+        state.account = accounts[0];
+        state.connected = true;
+        state.provider = new ethers.providers.Web3Provider(window.ethereum,"any");
+        state.signer = state.provider.getSigner();
+        const network = await state.provider.getNetwork();
+        state.chainId = Number(network.chainId);
+        updateWalletUI();
+        await refreshWalletBalances();
+      });
+
+      window.ethereum.on?.("chainChanged", async () => {
+        if(state.connected && window.ethers){
+          state.provider = new ethers.providers.Web3Provider(window.ethereum,"any");
+          state.signer = state.provider.getSigner();
+          const network = await state.provider.getNetwork();
+          state.chainId = Number(network.chainId);
+          updateWalletUI();
+          await refreshWalletBalances();
+        }
+      });
+    }
+
+    preloadLogo();
+    setPage("scanner");
+    renderApprovals();
+  </script>
+</body>
+  </html>
