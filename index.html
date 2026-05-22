@@ -1,924 +1,341 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>ArcShield Sentinel</title>
-<script src="https://cdn.jsdelivr.net/npm/ethers@6.13.2/dist/ethers.umd.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+<title>ArcShield</title>
+
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-:root{
-  --bg:#06111f;
-  --panel:#0b1a2d;
-  --line:#17304b;
-  --soft:#8ca4bf;
-  --text:#eef6ff;
-  --cyan:#3ecbff;
-  --blue:#2f66ff;
-  --green:#29d391;
-  --yellow:#f2b94b;
-  --red:#ff6262;
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
 }
+
 body{
-  background:radial-gradient(circle at top,#0d2646 0%,#07111d 40%,#040912 100%);
-  color:var(--text);
-  font-family:Inter,system-ui,sans-serif;
-  min-height:100vh;
-  overflow-x:hidden;
+  overflow:hidden;
+  font-family:Arial, Helvetica, sans-serif;
+  background:#07131f;
 }
-button,input{
-  font-family:inherit;
-  outline:none;
+
+/* =========================
+   WRAPPER
+========================= */
+
+.wrapper{
+  width:200vw;
+  height:100vh;
+  display:flex;
+  transition:transform .65s cubic-bezier(.77,0,.18,1);
 }
-#cover{
-  position:fixed;
-  inset:0;
-  z-index:30;
-  background:linear-gradient(145deg,#133d7a 0%,#0b2345 45%,#050c18 100%);
+
+/* =========================
+   PAGES
+========================= */
+
+.page{
+  width:100vw;
+  height:100vh;
+  flex-shrink:0;
+  position:relative;
+  overflow:hidden;
+}
+
+/* =========================
+   CAPA
+========================= */
+
+.cover{
+  background:
+    radial-gradient(circle at top, #34c8ff55 0%, transparent 45%),
+    linear-gradient(180deg,#1596d8 0%, #168dca 100%);
   display:flex;
   align-items:center;
   justify-content:center;
-  transition:1s cubic-bezier(.7,0,.2,1);
 }
-#cover.hide{
-  transform:translateX(-110%);
+
+/* brilho suave */
+
+.cover::before{
+  content:"";
+  position:absolute;
+  width:420px;
+  height:420px;
+  background:#4ed6ff20;
+  border-radius:50%;
+  filter:blur(80px);
+  top:25%;
+  left:50%;
+  transform:translateX(-50%);
 }
-.cover-grid{
+
+/* =========================
+   SETA
+========================= */
+
+.slide-button{
+  position:absolute;
+  top:90px;
+  left:50%;
+  transform:translateX(-50%);
+  width:72px;
+  height:72px;
+  border-radius:50%;
+  border:1px solid rgba(255,255,255,.18);
+
+  background:rgba(255,255,255,.08);
+  backdrop-filter:blur(12px);
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  cursor:pointer;
+
+  transition:.25s;
+  z-index:10;
+
+  box-shadow:
+    0 0 30px rgba(0,195,255,.25),
+    inset 0 0 20px rgba(255,255,255,.05);
+}
+
+.slide-button:active{
+  transform:translateX(-50%) scale(.94);
+}
+
+.arrow{
+  font-size:34px;
+  color:#dff8ff;
+  margin-left:4px;
+}
+
+/* =========================
+   CENTRO
+========================= */
+
+.center-box{
+  position:relative;
+  z-index:5;
+
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+}
+
+/* =========================
+   LOGO
+========================= */
+
+.logo-wrap{
+  width:170px;
+  height:170px;
+  border-radius:42px;
+
+  background:rgba(255,255,255,.05);
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  border:1px solid rgba(255,255,255,.14);
+
+  backdrop-filter:blur(10px);
+
+  box-shadow:
+    0 0 50px rgba(0,225,255,.18),
+    inset 0 0 30px rgba(255,255,255,.04);
+}
+
+.logo-wrap img{
+  width:120px;
+  object-fit:contain;
+}
+
+/* =========================
+   TITLE
+========================= */
+
+.title{
+  margin-top:28px;
+
+  color:white;
+  font-size:36px;
+  font-weight:700;
+  letter-spacing:4px;
+
+  text-shadow:
+    0 0 18px rgba(255,255,255,.15),
+    0 0 30px rgba(0,225,255,.35);
+}
+
+.subtitle{
+  margin-top:10px;
+
+  color:#d9f6ff;
+  font-size:13px;
+  letter-spacing:3px;
+  opacity:.75;
+}
+
+/* =========================
+   SECOND PAGE
+========================= */
+
+.second{
+  background:
+    linear-gradient(180deg,#07131f 0%, #0c1f30 100%);
+}
+
+.second::before{
+  content:"";
   position:absolute;
   inset:0;
+
   background-image:
     linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
-  background-size:34px 34px;
-  mask-image:radial-gradient(circle at center, black 40%, transparent 90%);
+
+  background-size:40px 40px;
+
+  opacity:.25;
 }
-.cover-core{
-  width:min(92vw,420px);
-  text-align:center;
-  position:relative;
-}
-.logo-shell{
-  width:170px;
-  height:170px;
-  margin:0 auto 22px;
-  border-radius:42px;
-  background:radial-gradient(circle at 30% 30%,rgba(86,204,255,.45),rgba(17,35,67,.1) 50%),#0b1830;
-  border:1px solid rgba(122,198,255,.18);
-  box-shadow:
-  0 0 0 1px rgba(255,255,255,.03),
-  0 0 40px rgba(46,132,255,.25),
-  inset 0 0 30px rgba(72,186,255,.1);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  position:relative;
-  overflow:hidden;
-}
-.logo-shell::before{
-  content:"";
+
+.placeholder{
   position:absolute;
-  width:240px;
-  height:1px;
-  background:linear-gradient(90deg,transparent,rgba(126,214,255,.4),transparent);
-  animation:scan 5s linear infinite;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+
+  color:#6fcfff;
+  font-size:20px;
+  letter-spacing:3px;
+  opacity:.4;
 }
-@keyframes scan{
-  from{transform:translateY(-100px)}
-  to{transform:translateY(100px)}
-}
-.logo-shell span{
-  font-size:58px;
-  font-weight:700;
-  color:#b9e8ff;
-  letter-spacing:4px;
-}
-.cover-title{
-  font-size:30px;
-  font-weight:650;
-  letter-spacing:-1px;
-}
-.cover-sub{
-  margin-top:8px;
-  color:#bfd7f3;
-  font-size:13px;
-  line-height:1.6;
-}
-.open-row{
-  margin-top:34px;
-  display:flex;
-  justify-content:center;
-}
-#openApp{
-  background:rgba(7,16,29,.55);
-  border:1px solid rgba(126,214,255,.22);
-  color:#dff6ff;
-  height:42px;
-  padding:0 18px;
-  border-radius:14px;
+
+/* =========================
+   BACK BUTTON
+========================= */
+
+.back-btn{
+  position:absolute;
+  top:90px;
+  left:28px;
+
+  width:58px;
+  height:58px;
+
+  border-radius:50%;
+
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.08);
+
   display:flex;
   align-items:center;
-  gap:10px;
-  cursor:pointer;
-  transition:.25s;
+  justify-content:center;
+
+  color:white;
+  font-size:28px;
+
   backdrop-filter:blur(10px);
-}
-#openApp:hover{
-  border-color:rgba(126,214,255,.5);
-  transform:translateY(-1px);
-}
-.arrow{
-  width:22px;
-  height:22px;
-  border-radius:7px;
-  background:linear-gradient(145deg,#4fd7ff,#3772ff);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:12px;
-  font-weight:700;
-  color:#fff;
-}
-.app{
-  width:min(100%,980px);
-  margin:auto;
-  padding:18px;
-}
-.topbar{
-  position:sticky;
-  top:0;
-  z-index:10;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:10px;
-  padding:14px 0 18px;
-  backdrop-filter:blur(12px);
-}
-.brand small{
-  display:block;
-  color:var(--soft);
-  font-size:11px;
-  margin-top:2px;
-}
-.brand strong{
-  font-size:18px;
-  letter-spacing:-.4px;
-}
-.wallet-zone{
-  display:flex;
-  align-items:center;
-  gap:10px;
-}
-.network-pill,
-.wallet-btn{
-  height:34px;
-  border-radius:11px;
-  padding:0 12px;
-  border:1px solid var(--line);
-  background:rgba(8,17,28,.65);
-  color:var(--text);
-  font-size:12px;
-}
-.wallet-btn{
+
   cursor:pointer;
 }
-.wallet-btn.connected{
-  border-color:rgba(41,211,145,.35);
-  color:#b8ffe2;
+
+.back-btn:active{
+  transform:scale(.94);
 }
-.grid{
-  display:grid;
-  gap:16px;
-}
-.hero{
-  border:1px solid var(--line);
-  background:linear-gradient(180deg,rgba(15,31,52,.95),rgba(8,15,27,.95));
-  border-radius:20px;
-  padding:18px;
-  display:grid;
-  grid-template-columns:110px 1fr;
-  gap:16px;
-}
-.orb{
-  width:110px;
-  height:110px;
-  border-radius:28px;
-  background:
-  radial-gradient(circle at 30% 30%,rgba(80,225,255,.4),transparent 40%),
-  radial-gradient(circle at 70% 70%,rgba(46,102,255,.35),transparent 45%),
-  #0b1525;
-  border:1px solid rgba(92,196,255,.16);
-  position:relative;
-  overflow:hidden;
-  box-shadow:0 0 35px rgba(54,123,255,.2);
-}
-.orb::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  background:conic-gradient(from 0deg,transparent,rgba(86,204,255,.12),transparent);
-  animation:spin 5s linear infinite;
-}
-@keyframes spin{
-  to{transform:rotate(360deg)}
-}
-.orb::after{
-  content:"";
-  position:absolute;
-  inset:16px;
-  border-radius:18px;
-  border:1px solid rgba(255,255,255,.05);
-}
-.hero h1{
-  font-size:24px;
-  letter-spacing:-1px;
-}
-.hero p{
-  color:var(--soft);
-  margin-top:10px;
-  line-height:1.6;
-  font-size:14px;
-}
-.hero-stats{
-  display:flex;
-  gap:14px;
-  margin-top:16px;
-  flex-wrap:wrap;
-}
-.mini{
-  border-left:1px solid var(--line);
-  padding-left:10px;
-}
-.mini span{
-  display:block;
-  color:var(--soft);
-  font-size:11px;
-}
-.mini strong{
-  font-size:14px;
-}
-.panel{
-  border:1px solid var(--line);
-  background:rgba(8,15,27,.88);
-  border-radius:18px;
-  padding:16px;
-}
-.section-head{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:14px;
-}
-.section-head strong{
-  font-size:14px;
-  letter-spacing:.2px;
-}
-.section-head span{
-  color:var(--soft);
-  font-size:11px;
-}
-.scan-row{
-  display:grid;
-  grid-template-columns:1fr auto auto;
-  gap:10px;
-}
-.scan-row input{
-  height:44px;
-  border-radius:12px;
-  border:1px solid var(--line);
-  background:#07111d;
-  color:var(--text);
-  padding:0 14px;
-  font-size:13px;
-}
-.small-btn{
-  height:44px;
-  border-radius:12px;
-  padding:0 16px;
-  border:1px solid rgba(126,214,255,.18);
-  background:linear-gradient(180deg,#102742,#0b1726);
-  color:#eaf7ff;
-  font-size:12px;
-  cursor:pointer;
-  transition:.2s;
-}
-.small-btn:hover{
-  transform:translateY(-1px);
-  border-color:rgba(126,214,255,.45);
-}
-.inline-actions{
-  display:flex;
-  gap:8px;
-  margin-top:10px;
-  flex-wrap:wrap;
-}
-.inline-actions button{
-  height:31px;
-  padding:0 11px;
-  border-radius:9px;
-  border:1px solid var(--line);
-  background:#081423;
-  color:#d7e6f7;
-  font-size:11px;
-  cursor:pointer;
-}
-.report{
-  margin-top:16px;
-  display:grid;
-  gap:8px;
-}
-.report-line{
-  display:flex;
-  justify-content:space-between;
-  gap:10px;
-  padding:9px 0;
-  border-bottom:1px solid rgba(255,255,255,.04);
-  font-size:13px;
-}
-.report-line span{
-  color:var(--soft);
-}
-.report-line strong{
-  text-align:right;
-  word-break:break-word;
-}
-.status-low{color:var(--green)}
-.status-mid{color:var(--yellow)}
-.status-high{color:var(--red)}
-.status-blue{color:var(--cyan)}
-.revoke-table{
-  overflow:auto;
-}
-.table-head,
-.table-row{
-  display:grid;
-  grid-template-columns:1.5fr .9fr .9fr .7fr .7fr;
-  gap:12px;
-  align-items:center;
-  min-width:680px;
-}
-.table-head{
-  color:var(--soft);
-  font-size:11px;
-  padding-bottom:10px;
-  border-bottom:1px solid rgba(255,255,255,.05);
-}
-.table-row{
-  padding:12px 0;
-  border-bottom:1px solid rgba(255,255,255,.04);
-  font-size:12px;
-}
-.action-btn{
-  height:28px;
-  border-radius:8px;
-  border:1px solid rgba(255,98,98,.22);
-  background:#140b12;
-  color:#ffb5b5;
-  cursor:pointer;
-  font-size:11px;
-}
-.asset-list{
-  display:grid;
-  gap:10px;
-}
-.asset-item{
-  display:flex;
-  justify-content:space-between;
-  gap:10px;
-  align-items:center;
-  padding:12px 0;
-  border-bottom:1px solid rgba(255,255,255,.04);
-}
-.asset-item small{
-  display:block;
-  color:var(--soft);
-  margin-top:4px;
-}
-.copy-btn{
-  height:30px;
-  padding:0 10px;
-  border-radius:8px;
-  border:1px solid var(--line);
-  background:#081322;
-  color:#dbeeff;
-  cursor:pointer;
-  font-size:11px;
-}
-.resources{
-  display:flex;
-  flex-wrap:wrap;
-  gap:10px;
-  margin-top:10px;
-}
-.resources a{
-  text-decoration:none;
-  color:#bce7ff;
-  font-size:12px;
-  border-bottom:1px solid rgba(188,231,255,.18);
-}
-.footer{
-  color:#69819d;
-  font-size:11px;
-  line-height:1.7;
-  padding:10px 0 30px;
-}
-.arc-social{
-  margin-top:10px;
-  display:flex;
-  gap:10px;
-}
-.arc-social a{
-  color:#7ca5cf;
-  text-decoration:none;
-  font-size:11px;
-}
-@media(max-width:720px){
-  .hero{
-    grid-template-columns:1fr;
-  }
-  .orb{
-    margin:auto;
-  }
-  .scan-row{
-    grid-template-columns:1fr;
-  }
-}
+
 </style>
 </head>
-<body><div id="cover">
-  <div class="cover-grid"></div>  <div class="cover-core">
-    <div class="logo-shell">
-      <span>AS</span>
-    </div><div class="cover-title">ArcShield Sentinel</div>
 
-<div class="cover-sub">
-  Arc Testnet security scanner for contracts, tokens and dapp permissions.
-</div>
+<body>
 
-<div class="open-row">
-  <button id="openApp">
-    <div class="arrow">→</div>
-    Open Sentinel
-  </button>
-</div>
+<div class="wrapper" id="wrapper">
 
-  </div>
-</div><div class="app">  <div class="topbar">
-    <div class="brand">
-      <strong>ArcShield Sentinel</strong>
-      <small>Arc Testnet security layer</small>
-    </div><div class="wallet-zone">
-  <div class="network-pill" id="networkStatus">Arc RPC Ready</div>
-  <button class="wallet-btn" id="walletBtn">Connect</button>
-</div>
+  <!-- =====================
+       CAPA
+  ====================== -->
 
-  </div>  <div class="grid"><section class="hero">
-  <div class="orb"></div>
+  <section class="page cover">
 
-  <div>
-    <h1>Scan contracts before interacting.</h1>
-
-    <p>
-      ArcShield Sentinel helps users check tokens, contracts and dapps before interacting on Arc Testnet.
-    </p>
-
-    <div class="hero-stats">
-      <div class="mini">
-        <span>Network</span>
-        <strong>Arc Testnet</strong>
+      <div class="slide-button" onclick="openSecondPage()">
+        <div class="arrow">➜</div>
       </div>
 
-      <div class="mini">
-        <span>RPC</span>
-        <strong>Live</strong>
-      </div>
+      <div class="center-box">
 
-      <div class="mini">
-        <span>Wallet</span>
-        <strong id="walletMini">Disconnected</strong>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="panel">
-  <div class="section-head">
-    <strong>Contract Scanner</strong>
-    <span>ERC20 / known assets</span>
-  </div>
-
-  <div class="scan-row">
-    <input id="contractInput" placeholder="Paste contract or token address" />
-    <button class="small-btn" id="scanBtn">Scan</button>
-    <button class="small-btn" id="clearBtn">Clear</button>
-  </div>
-
-  <div class="inline-actions">
-    <button data-fill="0x3600000000000000000000000000000000000000">USDC</button>
-    <button data-fill="0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a">EURC</button>
-  </div>
-
-  <div class="report" id="report">
-    <div class="report-line">
-      <span>Status</span>
-      <strong class="status-blue">Waiting for scan</strong>
-    </div>
-  </div>
-</section>
-
-<section class="panel">
-  <div class="section-head">
-    <strong>Dapp Revoke Center</strong>
-    <span>Connected dapps & approvals</span>
-  </div>
-
-  <div class="revoke-table">
-    <div class="table-head">
-      <div>Dapp / Spender</div>
-      <div>Access</div>
-      <div>Asset</div>
-      <div>Risk</div>
-      <div>Action</div>
-    </div>
-
-    <div id="revokeRows">
-      <div class="table-row">
-        <div>No wallet connected</div>
-        <div>-</div>
-        <div>-</div>
-        <div>-</div>
-        <div>-</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="panel">
-  <div class="section-head">
-    <strong>Known Arc Assets</strong>
-    <span>trusted references</span>
-  </div>
-
-  <div class="asset-list">
-
-    <div class="asset-item">
-      <div>
-        <strong>USDC</strong>
-        <small>Known Asset · 0x3600...0000</small>
-      </div>
-      <button class="copy-btn" data-copy="0x3600000000000000000000000000000000000000">Copy</button>
-    </div>
-
-    <div class="asset-item">
-      <div>
-        <strong>EURC</strong>
-        <small>Known Asset · 0x89B5...9D72a</small>
-      </div>
-      <button class="copy-btn" data-copy="0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a">Copy</button>
-    </div>
-
-  </div>
-</section>
-
-<section class="panel">
-  <div class="section-head">
-    <strong>Official Arc Resources</strong>
-    <span>always verify official sources</span>
-  </div>
-
-  <div class="resources">
-    <a href="https://www.arc.network/" target="_blank">Arc</a>
-    <a href="https://docs.arc.network/" target="_blank">Docs</a>
-    <a href="https://community.arc.network/" target="_blank">Arc House</a>
-    <a href="https://testnet.arcscan.app/" target="_blank">ArcScan</a>
-    <a href="https://www.circle.com/" target="_blank">Circle</a>
-  </div>
-
-  <div class="arc-social">
-    <a href="https://x.com/arcnetwork_" target="_blank">Arc X</a>
-    <a href="https://discord.gg/arc" target="_blank">Arc Discord</a>
-  </div>
-</section>
-
-<div class="footer">
-  ArcShield Sentinel is an independent testnet safety tool. It does not replace audits and does not guarantee that a contract or dapp is safe.
-</div>
-
-  </div>
-</div><script>
-const RPC = 'https://rpc.testnet.arc.network';
-const CHAIN_ID = 5042002;
-
-const provider = new ethers.JsonRpcProvider(RPC);
-
-const KNOWN = {
-  '0x3600000000000000000000000000000000000000': {
-    name:'USDC',
-    type:'Known Asset',
-    risk:'Low Risk'
-  },
-  '0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a': {
-    name:'EURC',
-    type:'Known Asset',
-    risk:'Low Risk'
-  }
-};
-
-const ERC20_ABI = [
-  'function name() view returns (string)',
-  'function symbol() view returns (string)',
-  'function decimals() view returns (uint8)',
-  'function totalSupply() view returns (uint256)',
-  'function allowance(address owner,address spender) view returns (uint256)',
-  'function approve(address spender,uint256 amount) returns (bool)'
-];
-
-let walletProvider;
-let signer;
-let walletAddress = null;
-
-const walletBtn = document.getElementById('walletBtn');
-const walletMini = document.getElementById('walletMini');
-const networkStatus = document.getElementById('networkStatus');
-const report = document.getElementById('report');
-
-const revokeProfiles = [
-  {
-    dapp:'ArcSwap Router',
-    spender:'0x7A1b2C3d4E5f678901234567890123456789AbCd',
-    asset:'USDC',
-    token:'0x3600000000000000000000000000000000000000',
-    risk:'Low'
-  },
-  {
-    dapp:'Unknown Dapp',
-    spender:'0xDaaDbeEF9321567812345678901234567890FE11',
-    asset:'EURC',
-    token:'0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a',
-    risk:'Caution'
-  }
-];
-
-function short(addr){
-  return addr.slice(0,6)+'...'+addr.slice(-4);
-}
-
-function setReport(lines){
-  report.innerHTML = lines.map(i => `
-    <div class="report-line">
-      <span>${i.label}</span>
-      <strong class="${i.class || ''}">${i.value}</strong>
-    </div>
-  `).join('');
-}
-
-async function connectWallet(){
-  if(!window.ethereum){
-    alert('Wallet provider not found');
-    return;
-  }
-
-  try{
-    walletProvider = new ethers.BrowserProvider(window.ethereum);
-
-    await walletProvider.send('eth_requestAccounts',[]);
-
-    signer = await walletProvider.getSigner();
-    walletAddress = await signer.getAddress();
-
-    const network = await walletProvider.getNetwork();
-
-    walletBtn.innerText = short(walletAddress);
-    walletBtn.classList.add('connected');
-    walletMini.innerText = 'Connected';
-
-    if(Number(network.chainId) !== CHAIN_ID){
-      networkStatus.innerText = 'Wrong Network';
-      networkStatus.style.color = '#ff9c9c';
-    } else {
-      networkStatus.innerText = 'Arc Testnet';
-      networkStatus.style.color = '#aaf7d5';
-    }
-
-    loadRevokeData();
-
-  }catch(err){
-    console.log(err);
-  }
-}
-
-walletBtn.addEventListener('click', async ()=>{
-  if(walletAddress){
-    walletAddress = null;
-    walletBtn.innerText = 'Connect';
-    walletBtn.classList.remove('connected');
-    walletMini.innerText = 'Disconnected';
-    networkStatus.innerText = 'Arc RPC Ready';
-    networkStatus.style.color = '#eef6ff';
-
-    document.getElementById('revokeRows').innerHTML = `
-      <div class="table-row">
-        <div>No wallet connected</div>
-        <div>-</div>
-        <div>-</div>
-        <div>-</div>
-        <div>-</div>
-      </div>
-    `;
-    return;
-  }
-
-  connectWallet();
-});
-
-async function scanContract(){
-  const input = document.getElementById('contractInput').value.trim();
-
-  if(!ethers.isAddress(input)){
-    setReport([
-      {label:'Status',value:'Invalid address',class:'status-high'}
-    ]);
-    return;
-  }
-
-  try{
-    setReport([
-      {label:'Scanner',value:'Reading contract...',class:'status-blue'}
-    ]);
-
-    const code = await provider.getCode(input);
-
-    if(code === '0x'){
-      setReport([
-        {label:'Contract exists',value:'No',class:'status-high'},
-        {label:'Risk',value:'Unknown address',class:'status-mid'}
-      ]);
-      return;
-    }
-
-    const contract = new ethers.Contract(input, ERC20_ABI, provider);
-
-    let name='Unreadable';
-    let symbol='-';
-    let decimals='-';
-    let total='-';
-
-    try{name = await contract.name()}catch{}
-    try{symbol = await contract.symbol()}catch{}
-    try{decimals = await contract.decimals()}catch{}
-
-    try{
-      const ts = await contract.totalSupply();
-      total = ethers.formatUnits(ts, Number(decimals || 18));
-      total = Number(total).toLocaleString();
-    }catch{}
-
-    const known = KNOWN[input];
-
-    setReport([
-      {
-        label:'Contract exists',
-        value:'Yes',
-        class:'status-low'
-      },
-      {
-        label:'Contract type',
-        value:known ? known.type : 'Custom Contract'
-      },
-      {
-        label:'Known asset',
-        value:known ? known.name : 'No'
-      },
-      {
-        label:'Name',
-        value:name
-      },
-      {
-        label:'Symbol',
-        value:symbol
-      },
-      {
-        label:'Decimals',
-        value:decimals
-      },
-      {
-        label:'Total Supply',
-        value:total
-      },
-      {
-        label:'Risk',
-        value:known ? known.risk : 'Review before interacting',
-        class:known ? 'status-low' : 'status-mid'
-      },
-      {
-        label:'ArcScan',
-        value:`<a href="https://testnet.arcscan.app/address/${input}" target="_blank" style="color:#72d9ff;text-decoration:none">Open Explorer</a>`
-      }
-    ]);
-
-  }catch(err){
-    console.log(err);
-
-    setReport([
-      {
-        label:'Scanner error',
-        value:'Unable to read contract',
-        class:'status-high'
-      }
-    ]);
-  }
-}
-
-async function loadRevokeData(){
-  if(!walletAddress) return;
-
-  const rows = [];
-
-  for(const item of revokeProfiles){
-    try{
-      const token = new ethers.Contract(item.token, ERC20_ABI, provider);
-
-      let allowance = 0n;
-
-      try{
-        allowance = await token.allowance(walletAddress,item.spender);
-      }catch{}
-
-      const value = allowance > 0n
-      ? ethers.formatUnits(allowance,18)
-      : '0';
-
-      rows.push(`
-        <div class="table-row">
-          <div>${item.dapp}<br><span style="color:#6f89a7;font-size:10px">${short(item.spender)}</span></div>
-          <div>Approval</div>
-          <div>${item.asset}</div>
-          <div class="${allowance > 0n ? 'status-mid' : 'status-low'}">${allowance > 0n ? item.risk : 'Clear'}</div>
-          <div>
-            ${allowance > 0n
-              ? `<button class="action-btn" onclick="revokeApproval('${item.token}','${item.spender}')">Revoke</button>`
-              : '—'}
+          <div class="logo-wrap">
+              <img src="logo.png" alt="ArcShield Logo">
           </div>
-        </div>
-      `);
 
-    }catch(err){
-      console.log(err);
-    }
-  }
+          <div class="title">ARCSHIELD</div>
 
-  document.getElementById('revokeRows').innerHTML = rows.join('');
+          <div class="subtitle">
+            SECURITY • DEFENSE • ARC
+          </div>
+
+      </div>
+
+  </section>
+
+  <!-- =====================
+       PAGE 2
+  ====================== -->
+
+  <section class="page second">
+
+      <div class="back-btn" onclick="backToCover()">
+        ←
+      </div>
+
+      <div class="placeholder">
+        SECOND PAGE
+      </div>
+
+  </section>
+
+</div>
+
+<script>
+
+const wrapper = document.getElementById("wrapper");
+
+function openSecondPage(){
+  wrapper.style.transform = "translateX(-100vw)";
 }
 
-async function revokeApproval(tokenAddress,spender){
-  if(!signer){
-    alert('Connect wallet first');
-    return;
-  }
-
-  try{
-    const token = new ethers.Contract(tokenAddress, ERC20_ABI, signer);
-
-    const tx = await token.approve(spender,0);
-
-    alert('Revoke transaction submitted');
-
-    await tx.wait();
-
-    loadRevokeData();
-
-  }catch(err){
-    console.log(err);
-    alert('Revoke failed');
-  }
+function backToCover(){
+  wrapper.style.transform = "translateX(0)";
 }
 
-window.revokeApproval = revokeApproval;
+/* swipe mobile */
 
-document.getElementById('scanBtn').addEventListener('click',scanContract);
+let startX = 0;
 
-document.getElementById('clearBtn').addEventListener('click',()=>{
-  document.getElementById('contractInput').value='';
-  setReport([
-    {label:'Status',value:'Waiting for scan',class:'status-blue'}
-  ]);
+document.addEventListener("touchstart",(e)=>{
+  startX = e.touches[0].clientX;
 });
 
-document.querySelectorAll('[data-fill]').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    document.getElementById('contractInput').value = btn.dataset.fill;
-  });
+document.addEventListener("touchend",(e)=>{
+
+  let endX = e.changedTouches[0].clientX;
+  let diff = startX - endX;
+
+  if(diff > 80){
+    openSecondPage();
+  }
+
+  if(diff < -80){
+    backToCover();
+  }
+
 });
 
-document.querySelectorAll('[data-copy]').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    navigator.clipboard.writeText(btn.dataset.copy);
-    btn.innerText='Copied';
-    setTimeout(()=>btn.innerText='Copy',1200);
-  });
-});
+</script>
 
-document.getElementById('openApp').addEventListener('click',()=>{
-  document.getElementById('cover').classList.add('hide');
-});
-</script></body>
+</body>
 </html>
