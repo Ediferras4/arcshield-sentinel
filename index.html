@@ -21,7 +21,7 @@ body{
   height:100%;
   overflow:hidden;
   font-family:Arial, Helvetica, sans-serif;
-  background:#020812;
+  background:#020816;
 }
 
 /* =========================
@@ -53,10 +53,12 @@ body{
 .second-page{
 
   background:
-    linear-gradient(180deg,#020c16 0%, #07192a 100%);
+    linear-gradient(180deg,#020b16 0%, #07192c 100%);
 
   overflow:hidden;
 }
+
+/* grid */
 
 .second-page::before{
   content:"";
@@ -65,32 +67,12 @@ body{
   inset:0;
 
   background-image:
-    linear-gradient(rgba(0,180,255,.045) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0,180,255,.045) 1px, transparent 1px);
+    linear-gradient(rgba(0,180,255,.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,180,255,.04) 1px, transparent 1px);
 
-  background-size:42px 42px;
+  background-size:44px 44px;
 
-  opacity:.32;
-}
-
-.second-page::after{
-  content:"";
-
-  position:absolute;
-
-  width:800px;
-  height:800px;
-
-  border-radius:50%;
-
-  background:#00bfff12;
-
-  filter:blur(140px);
-
-  top:50%;
-  left:50%;
-
-  transform:translate(-50%,-50%);
+  opacity:.25;
 }
 
 /* =========================
@@ -100,269 +82,258 @@ body{
 .cover-page{
 
   background:
-    radial-gradient(circle at top, #a9ebff44 0%, transparent 35%),
-    linear-gradient(180deg,#37b7f2 0%, #269fdd 100%);
+    radial-gradient(circle at center,
+    #0f7cff 0%,
+    #063a9d 55%,
+    #02122f 100%);
+
+  overflow:hidden;
 
   display:flex;
   align-items:center;
   justify-content:center;
 
-  overflow:hidden;
-
-  z-index:10;
+  z-index:20;
 
   transition:transform .85s cubic-bezier(.77,0,.18,1);
 }
 
-/* glow */
+/* hex background */
 
 .cover-page::before{
   content:"";
 
   position:absolute;
+  inset:0;
 
-  width:620px;
-  height:620px;
+  background-image:url("https://www.transparenttextures.com/patterns/hexellence.png");
 
-  border-radius:50%;
-
-  background:#ffffff12;
-
-  filter:blur(130px);
-
-  top:12%;
-  left:50%;
-
-  transform:translateX(-50%);
+  opacity:.08;
 }
 
-/* texture */
+/* glow */
 
 .cover-page::after{
   content:"";
 
   position:absolute;
-  inset:0;
 
-  background:
-    linear-gradient(transparent 96%, rgba(255,255,255,.02) 100%);
+  width:900px;
+  height:900px;
 
-  background-size:100% 4px;
+  border-radius:50%;
 
-  opacity:.18;
+  background:#00bfff18;
+
+  filter:blur(120px);
+
+  top:50%;
+  left:50%;
+
+  transform:translate(-50%,-50%);
 }
 
 /* =========================
-   BOTÃO ABRIR
+   OPEN BUTTON
 ========================= */
 
-.slide-btn{
+.open-button{
 
   position:absolute;
 
-  top:72px;
+  top:82px;
   left:50%;
 
   transform:translateX(-50%);
 
-  width:88px;
-  height:88px;
+  width:96px;
+  height:96px;
 
   border-radius:50%;
-
-  background:
-    linear-gradient(180deg,
-    rgba(255,255,255,.12),
-    rgba(255,255,255,.04));
-
-  border:1px solid rgba(255,255,255,.14);
-
-  backdrop-filter:blur(14px);
 
   display:flex;
   align-items:center;
   justify-content:center;
+
+  background:
+    radial-gradient(circle at top,
+    rgba(255,255,255,.16),
+    rgba(255,255,255,.04));
+
+  border:2px solid rgba(83,220,255,.45);
+
+  backdrop-filter:blur(10px);
+
+  box-shadow:
+    0 0 25px rgba(0,195,255,.35),
+    0 0 60px rgba(0,195,255,.18),
+    inset 0 0 20px rgba(255,255,255,.05);
 
   z-index:50;
 
   cursor:pointer;
 
-  transition:.22s;
-
-  box-shadow:
-    0 0 45px rgba(0,210,255,.18),
-    inset 0 0 24px rgba(255,255,255,.05);
+  transition:.25s;
 }
 
-.slide-btn:active{
-  transform:translateX(-50%) scale(.94);
+.open-button:active{
+  transform:translateX(-50%) scale(.95);
 }
 
-/* seta */
+/* outer ring */
 
-.arrow-wrap{
-  position:relative;
+.open-button::before{
+  content:"";
 
-  width:36px;
-  height:36px;
-}
-
-.arrow-line{
   position:absolute;
 
-  width:26px;
-  height:6px;
+  width:120%;
+  height:120%;
 
-  background:white;
+  border-radius:50%;
 
-  border-radius:20px;
-
-  top:15px;
-  left:2px;
+  border:1px solid rgba(0,225,255,.22);
 }
 
-.arrow-top{
-  position:absolute;
+/* arrow */
 
-  width:18px;
-  height:6px;
+.arrow{
+  font-size:48px;
+  color:#dffbff;
 
-  background:white;
+  transform:translateX(3px);
 
-  border-radius:20px;
-
-  transform:rotate(45deg);
-
-  right:1px;
-  top:10px;
-}
-
-.arrow-bottom{
-  position:absolute;
-
-  width:18px;
-  height:6px;
-
-  background:white;
-
-  border-radius:20px;
-
-  transform:rotate(-45deg);
-
-  right:1px;
-  bottom:10px;
+  text-shadow:
+    0 0 15px rgba(255,255,255,.35),
+    0 0 35px rgba(0,225,255,.45);
 }
 
 /* =========================
-   CENTRO
+   CENTER
 ========================= */
 
 .center-box{
   position:relative;
-  z-index:20;
+  z-index:30;
 
   display:flex;
   flex-direction:column;
   align-items:center;
   justify-content:center;
-
-  transform:translateY(10px);
 }
 
 /* =========================
-   LOGO
+   SHIELD AREA
 ========================= */
 
-.logo-shell{
-
-  width:240px;
-  height:240px;
-
-  border-radius:52px;
+.shield-wrap{
 
   position:relative;
+
+  width:440px;
+  height:440px;
 
   display:flex;
   align-items:center;
   justify-content:center;
-
-  background:
-    linear-gradient(180deg,
-    rgba(255,255,255,.11),
-    rgba(255,255,255,.03));
-
-  border:1px solid rgba(255,255,255,.12);
-
-  backdrop-filter:blur(16px);
-
-  box-shadow:
-    0 0 60px rgba(0,220,255,.18),
-    inset 0 0 40px rgba(255,255,255,.04);
 }
 
-/* aura */
+/* radar ring */
 
-.logo-shell::before{
+.ring{
+  position:absolute;
+
+  width:100%;
+  height:100%;
+
+  border-radius:50%;
+
+  border:1px solid rgba(0,225,255,.15);
+}
+
+.ring::before{
   content:"";
 
   position:absolute;
 
-  width:130%;
-  height:130%;
+  inset:28px;
 
   border-radius:50%;
 
-  background:#7fe8ff10;
-
-  filter:blur(50px);
-
-  z-index:-1;
+  border:1px solid rgba(0,225,255,.10);
 }
 
 /* logo */
 
-.logo-shell img{
+.logo{
 
-  width:165px;
-  height:165px;
+  width:290px;
 
   object-fit:contain;
 
   filter:
-    drop-shadow(0 0 18px rgba(255,255,255,.18));
+    drop-shadow(0 0 22px rgba(0,225,255,.65))
+    drop-shadow(0 0 80px rgba(0,180,255,.30));
 }
 
 /* =========================
-   TITLES
+   TITLE
 ========================= */
 
 .title{
 
-  margin-top:38px;
+  margin-top:10px;
 
-  color:white;
-
-  font-size:64px;
+  font-size:82px;
   font-weight:800;
 
   letter-spacing:10px;
 
+  background:linear-gradient(180deg,#c9f7ff 0%, #44bfff 100%);
+
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+
   text-shadow:
-    0 0 24px rgba(255,255,255,.15),
-    0 0 40px rgba(0,220,255,.20);
+    0 0 20px rgba(255,255,255,.08),
+    0 0 40px rgba(0,225,255,.25);
 }
+
+/* =========================
+   SUB
+========================= */
 
 .sub{
 
   margin-top:18px;
 
-  color:#eefcff;
+  color:#4ed0ff;
 
-  font-size:15px;
+  font-size:18px;
 
-  letter-spacing:8px;
+  letter-spacing:10px;
 
-  opacity:.72;
+  text-shadow:
+    0 0 15px rgba(0,225,255,.15);
+}
+
+/* divider */
+
+.line{
+
+  width:420px;
+  height:2px;
+
+  margin-top:28px;
+
+  background:
+    linear-gradient(90deg,
+    transparent,
+    rgba(0,225,255,.7),
+    transparent);
+
+  box-shadow:
+    0 0 15px rgba(0,225,255,.25);
 }
 
 /* =========================
@@ -379,33 +350,56 @@ body{
 
 @media (max-width:700px){
 
-  .slide-btn{
-    width:74px;
-    height:74px;
-    top:60px;
+  .open-button{
+    width:78px;
+    height:78px;
+    top:70px;
   }
 
-  .logo-shell{
-    width:170px;
-    height:170px;
-    border-radius:40px;
+  .arrow{
+    font-size:40px;
   }
 
-  .logo-shell img{
-    width:120px;
-    height:120px;
+  .shield-wrap{
+    width:270px;
+    height:270px;
+  }
+
+  .logo{
+    width:185px;
   }
 
   .title{
-    font-size:34px;
-    letter-spacing:5px;
-    margin-top:28px;
+    font-size:42px;
+    letter-spacing:6px;
+    margin-top:18px;
   }
 
   .sub{
     font-size:11px;
     letter-spacing:5px;
     margin-top:14px;
+  }
+
+  .line{
+    width:240px;
+    margin-top:22px;
+  }
+
+}
+
+/* =========================
+   SMALL MOBILE
+========================= */
+
+@media (max-width:390px){
+
+  .title{
+    font-size:36px;
+  }
+
+  .sub{
+    letter-spacing:4px;
   }
 
 }
@@ -427,16 +421,10 @@ body{
 
       <!-- botão -->
 
-      <div class="slide-btn" onclick="togglePages()">
+      <div class="open-button" onclick="togglePages()">
 
-          <div class="arrow-wrap">
-
-              <div class="arrow-line"></div>
-
-              <div class="arrow-top"></div>
-
-              <div class="arrow-bottom"></div>
-
+          <div class="arrow">
+            ➜
           </div>
 
       </div>
@@ -445,14 +433,12 @@ body{
 
       <div class="center-box">
 
-          <div class="logo-shell">
+          <div class="shield-wrap">
 
-              <!-- IMPORTANTE:
-                   logo transparente PNG
-                   sem fundo branco
-              -->
+              <div class="ring"></div>
 
-              <img src="logo.png" alt="ArcShield Logo">
+              <!-- PNG TRANSPARENTE -->
+              <img src="logo.png" class="logo" alt="ArcShield">
 
           </div>
 
@@ -463,6 +449,8 @@ body{
           <div class="sub">
             SECURITY • DEFENSE • ARC
           </div>
+
+          <div class="line"></div>
 
       </div>
 
