@@ -47,7 +47,7 @@ body{
 }
 
 /* =========================
-   PAGE 2
+   SECOND PAGE
 ========================= */
 
 .second-page{
@@ -58,7 +58,7 @@ body{
   overflow:hidden;
 }
 
-/* grid */
+/* tech grid */
 
 .second-page::before{
   content:"";
@@ -72,20 +72,20 @@ body{
 
   background-size:44px 44px;
 
-  opacity:.25;
+  opacity:.22;
 }
 
 /* =========================
-   CAPA
+   COVER
 ========================= */
 
 .cover-page{
 
   background:
-    radial-gradient(circle at center,
-    #0f7cff 0%,
-    #063a9d 55%,
-    #02122f 100%);
+    radial-gradient(circle at top,
+    #1f8fff 0%,
+    #0452c9 45%,
+    #02173e 100%);
 
   overflow:hidden;
 
@@ -98,7 +98,7 @@ body{
   transition:transform .85s cubic-bezier(.77,0,.18,1);
 }
 
-/* hex background */
+/* hex texture */
 
 .cover-page::before{
   content:"";
@@ -108,10 +108,10 @@ body{
 
   background-image:url("https://www.transparenttextures.com/patterns/hexellence.png");
 
-  opacity:.08;
+  opacity:.06;
 }
 
-/* glow */
+/* ambient glow */
 
 .cover-page::after{
   content:"";
@@ -123,7 +123,7 @@ body{
 
   border-radius:50%;
 
-  background:#00bfff18;
+  background:#00bfff12;
 
   filter:blur(120px);
 
@@ -141,13 +141,13 @@ body{
 
   position:absolute;
 
-  top:82px;
+  top:72px;
   left:50%;
 
   transform:translateX(-50%);
 
-  width:96px;
-  height:96px;
+  width:82px;
+  height:82px;
 
   border-radius:50%;
 
@@ -156,28 +156,27 @@ body{
   justify-content:center;
 
   background:
-    radial-gradient(circle at top,
-    rgba(255,255,255,.16),
-    rgba(255,255,255,.04));
+    linear-gradient(180deg,
+    rgba(255,255,255,.10),
+    rgba(255,255,255,.03));
 
-  border:2px solid rgba(83,220,255,.45);
+  border:1px solid rgba(120,220,255,.24);
 
   backdrop-filter:blur(10px);
 
   box-shadow:
-    0 0 25px rgba(0,195,255,.35),
-    0 0 60px rgba(0,195,255,.18),
-    inset 0 0 20px rgba(255,255,255,.05);
+    0 0 25px rgba(0,195,255,.14),
+    inset 0 0 20px rgba(255,255,255,.04);
 
   z-index:50;
 
   cursor:pointer;
 
-  transition:.25s;
+  transition:.22s;
 }
 
 .open-button:active{
-  transform:translateX(-50%) scale(.95);
+  transform:translateX(-50%) scale(.94);
 }
 
 /* outer ring */
@@ -187,25 +186,27 @@ body{
 
   position:absolute;
 
-  width:120%;
-  height:120%;
+  width:118%;
+  height:118%;
 
   border-radius:50%;
 
-  border:1px solid rgba(0,225,255,.22);
+  border:1px solid rgba(0,225,255,.12);
 }
 
 /* arrow */
 
 .arrow{
-  font-size:48px;
-  color:#dffbff;
 
-  transform:translateX(3px);
+  font-size:42px;
+
+  color:#dff8ff;
+
+  transform:translateX(2px);
 
   text-shadow:
-    0 0 15px rgba(255,255,255,.35),
-    0 0 35px rgba(0,225,255,.45);
+    0 0 12px rgba(255,255,255,.18),
+    0 0 22px rgba(0,180,255,.24);
 }
 
 /* =========================
@@ -230,25 +231,27 @@ body{
 
   position:relative;
 
-  width:440px;
-  height:440px;
+  width:420px;
+  height:420px;
 
   display:flex;
   align-items:center;
   justify-content:center;
 }
 
-/* radar ring */
+/* subtle ring */
 
 .ring{
   position:absolute;
 
-  width:100%;
-  height:100%;
+  width:92%;
+  height:92%;
 
   border-radius:50%;
 
-  border:1px solid rgba(0,225,255,.15);
+  border:1px solid rgba(120,220,255,.10);
+
+  backdrop-filter:blur(2px);
 }
 
 .ring::before{
@@ -260,20 +263,22 @@ body{
 
   border-radius:50%;
 
-  border:1px solid rgba(0,225,255,.10);
+  border:1px solid rgba(120,220,255,.06);
 }
 
 /* logo */
 
 .logo{
 
-  width:290px;
+  width:250px;
 
   object-fit:contain;
 
   filter:
-    drop-shadow(0 0 22px rgba(0,225,255,.65))
-    drop-shadow(0 0 80px rgba(0,180,255,.30));
+    drop-shadow(0 0 12px rgba(80,220,255,.28))
+    drop-shadow(0 0 30px rgba(0,120,255,.18));
+
+  opacity:.96;
 }
 
 /* =========================
@@ -282,21 +287,24 @@ body{
 
 .title{
 
-  margin-top:10px;
+  margin-top:26px;
 
-  font-size:82px;
+  font-size:74px;
   font-weight:800;
 
-  letter-spacing:10px;
+  letter-spacing:8px;
 
-  background:linear-gradient(180deg,#c9f7ff 0%, #44bfff 100%);
+  background:
+    linear-gradient(180deg,
+    #d8f7ff 0%,
+    #79d6ff 45%,
+    #36a9ff 100%);
 
   -webkit-background-clip:text;
   -webkit-text-fill-color:transparent;
 
   text-shadow:
-    0 0 20px rgba(255,255,255,.08),
-    0 0 40px rgba(0,225,255,.25);
+    0 0 18px rgba(0,180,255,.14);
 }
 
 /* =========================
@@ -305,26 +313,25 @@ body{
 
 .sub{
 
-  margin-top:18px;
+  margin-top:16px;
 
-  color:#4ed0ff;
+  color:#74cfff;
 
-  font-size:18px;
+  font-size:15px;
 
-  letter-spacing:10px;
+  letter-spacing:8px;
 
-  text-shadow:
-    0 0 15px rgba(0,225,255,.15);
+  opacity:.72;
 }
 
 /* divider */
 
 .line{
 
-  width:420px;
+  width:320px;
   height:2px;
 
-  margin-top:28px;
+  margin-top:26px;
 
   background:
     linear-gradient(90deg,
@@ -333,7 +340,7 @@ body{
     transparent);
 
   box-shadow:
-    0 0 15px rgba(0,225,255,.25);
+    0 0 12px rgba(0,225,255,.15);
 }
 
 /* =========================
@@ -351,27 +358,27 @@ body{
 @media (max-width:700px){
 
   .open-button{
-    width:78px;
-    height:78px;
-    top:70px;
+    width:72px;
+    height:72px;
+    top:58px;
   }
 
   .arrow{
-    font-size:40px;
+    font-size:36px;
   }
 
   .shield-wrap{
-    width:270px;
-    height:270px;
+    width:260px;
+    height:260px;
   }
 
   .logo{
-    width:185px;
+    width:175px;
   }
 
   .title{
     font-size:42px;
-    letter-spacing:6px;
+    letter-spacing:5px;
     margin-top:18px;
   }
 
@@ -382,8 +389,8 @@ body{
   }
 
   .line{
-    width:240px;
-    margin-top:22px;
+    width:220px;
+    margin-top:20px;
   }
 
 }
@@ -411,15 +418,15 @@ body{
 
 <div class="app" id="app">
 
-  <!-- PAGE 2 -->
+  <!-- SECOND PAGE -->
 
   <section class="page second-page"></section>
 
-  <!-- CAPA -->
+  <!-- COVER -->
 
   <section class="page cover-page">
 
-      <!-- botão -->
+      <!-- BUTTON -->
 
       <div class="open-button" onclick="togglePages()">
 
@@ -429,7 +436,7 @@ body{
 
       </div>
 
-      <!-- centro -->
+      <!-- CENTER -->
 
       <div class="center-box">
 
@@ -437,7 +444,12 @@ body{
 
               <div class="ring"></div>
 
-              <!-- PNG TRANSPARENTE -->
+              <!-- 
+                IMPORTANTE:
+                use um PNG transparente
+                sem fundo branco
+              -->
+
               <img src="logo.png" class="logo" alt="ArcShield">
 
           </div>
