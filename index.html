@@ -7,6 +7,7 @@
 <title>ArcShield</title>
 
 <style>
+
 *{
   margin:0;
   padding:0;
@@ -14,60 +15,133 @@
   -webkit-tap-highlight-color:transparent;
 }
 
+html,
 body{
+  width:100%;
+  height:100%;
   overflow:hidden;
   font-family:Arial, Helvetica, sans-serif;
-  background:#07131f;
+  background:#06111c;
 }
 
 /* =========================
-   WRAPPER
+   APP
 ========================= */
 
-.wrapper{
-  width:200vw;
+.app{
+  position:relative;
+  width:100vw;
   height:100vh;
-  display:flex;
-  transition:transform .65s cubic-bezier(.77,0,.18,1);
+  overflow:hidden;
 }
 
 /* =========================
-   PAGES
+   PAGE BASE
 ========================= */
 
 .page{
-  width:100vw;
-  height:100vh;
-  flex-shrink:0;
-  position:relative;
-  overflow:hidden;
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
 }
 
 /* =========================
-   CAPA
+   PAGE 2 (FUNDO)
 ========================= */
 
-.cover{
+.second-page{
+
   background:
-    radial-gradient(circle at top, #34c8ff55 0%, transparent 45%),
-    linear-gradient(180deg,#1596d8 0%, #168dca 100%);
+    linear-gradient(180deg,#020d18 0%, #061a2b 100%);
+
+  overflow:hidden;
+}
+
+.second-page::before{
+  content:"";
+  position:absolute;
+  inset:0;
+
+  background-image:
+    linear-gradient(rgba(0,180,255,.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,180,255,.05) 1px, transparent 1px);
+
+  background-size:38px 38px;
+
+  opacity:.35;
+}
+
+.second-page::after{
+  content:"";
+  position:absolute;
+
+  width:500px;
+  height:500px;
+
+  border-radius:50%;
+
+  background:#0cc7ff10;
+
+  filter:blur(120px);
+
+  top:50%;
+  left:50%;
+
+  transform:translate(-50%,-50%);
+}
+
+.second-placeholder{
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+
+  color:#4ca9d6;
+  letter-spacing:6px;
+  font-size:14px;
+
+  opacity:.25;
+}
+
+/* =========================
+   CAPA AZUL
+========================= */
+
+.cover-page{
+
+  background:
+    radial-gradient(circle at top, #78dcff55 0%, transparent 35%),
+    linear-gradient(180deg,#2aa7e2 0%, #2197d1 100%);
+
   display:flex;
   align-items:center;
   justify-content:center;
+
+  z-index:5;
+
+  transition:transform .75s cubic-bezier(.77,0,.18,1);
 }
 
-/* brilho suave */
+/* brilho */
 
-.cover::before{
+.cover-page::before{
   content:"";
+
   position:absolute;
+
   width:420px;
   height:420px;
-  background:#4ed6ff20;
+
   border-radius:50%;
-  filter:blur(80px);
+
+  background:#8ee6ff30;
+
+  filter:blur(90px);
+
   top:25%;
   left:50%;
+
   transform:translateX(-50%);
 }
 
@@ -75,41 +149,46 @@ body{
    SETA
 ========================= */
 
-.slide-button{
+.slide-btn{
+
   position:absolute;
-  top:90px;
+
+  top:70px;
   left:50%;
+
   transform:translateX(-50%);
+
   width:72px;
   height:72px;
+
   border-radius:50%;
-  border:1px solid rgba(255,255,255,.18);
+
+  border:1px solid rgba(255,255,255,.14);
 
   background:rgba(255,255,255,.08);
-  backdrop-filter:blur(12px);
+
+  backdrop-filter:blur(14px);
 
   display:flex;
   align-items:center;
   justify-content:center;
 
-  cursor:pointer;
+  color:white;
+  font-size:30px;
 
-  transition:.25s;
-  z-index:10;
+  z-index:20;
+
+  cursor:pointer;
 
   box-shadow:
     0 0 30px rgba(0,195,255,.25),
     inset 0 0 20px rgba(255,255,255,.05);
+
+  transition:.2s;
 }
 
-.slide-button:active{
+.slide-btn:active{
   transform:translateX(-50%) scale(.94);
-}
-
-.arrow{
-  font-size:34px;
-  color:#dff8ff;
-  margin-left:4px;
 }
 
 /* =========================
@@ -118,7 +197,7 @@ body{
 
 .center-box{
   position:relative;
-  z-index:5;
+  z-index:10;
 
   display:flex;
   flex-direction:column;
@@ -130,28 +209,30 @@ body{
    LOGO
 ========================= */
 
-.logo-wrap{
-  width:170px;
-  height:170px;
-  border-radius:42px;
+.logo-box{
 
-  background:rgba(255,255,255,.05);
+  width:150px;
+  height:150px;
+
+  border-radius:36px;
+
+  background:rgba(255,255,255,.07);
+
+  border:1px solid rgba(255,255,255,.15);
+
+  backdrop-filter:blur(12px);
 
   display:flex;
   align-items:center;
   justify-content:center;
 
-  border:1px solid rgba(255,255,255,.14);
-
-  backdrop-filter:blur(10px);
-
   box-shadow:
-    0 0 50px rgba(0,225,255,.18),
-    inset 0 0 30px rgba(255,255,255,.04);
+    0 0 40px rgba(0,200,255,.18),
+    inset 0 0 25px rgba(255,255,255,.05);
 }
 
-.logo-wrap img{
-  width:120px;
+.logo-box img{
+  width:105px;
   object-fit:contain;
 }
 
@@ -160,93 +241,53 @@ body{
 ========================= */
 
 .title{
-  margin-top:28px;
+  margin-top:24px;
 
   color:white;
-  font-size:36px;
+
+  font-size:38px;
   font-weight:700;
+
   letter-spacing:4px;
 
   text-shadow:
-    0 0 18px rgba(255,255,255,.15),
-    0 0 30px rgba(0,225,255,.35);
+    0 0 20px rgba(255,255,255,.18),
+    0 0 35px rgba(0,225,255,.35);
 }
 
-.subtitle{
+.sub{
   margin-top:10px;
 
-  color:#d9f6ff;
-  font-size:13px;
-  letter-spacing:3px;
-  opacity:.75;
+  color:#e7f9ff;
+
+  font-size:12px;
+
+  letter-spacing:4px;
+
+  opacity:.7;
 }
 
 /* =========================
-   SECOND PAGE
+   ESTADO ABERTO
 ========================= */
 
-.second{
-  background:
-    linear-gradient(180deg,#07131f 0%, #0c1f30 100%);
-}
-
-.second::before{
-  content:"";
-  position:absolute;
-  inset:0;
-
-  background-image:
-    linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
-
-  background-size:40px 40px;
-
-  opacity:.25;
-}
-
-.placeholder{
-  position:absolute;
-  top:50%;
-  left:50%;
-  transform:translate(-50%,-50%);
-
-  color:#6fcfff;
-  font-size:20px;
-  letter-spacing:3px;
-  opacity:.4;
+.app.open .cover-page{
+  transform:translateX(-100%);
 }
 
 /* =========================
-   BACK BUTTON
+   DESKTOP
 ========================= */
 
-.back-btn{
-  position:absolute;
-  top:90px;
-  left:28px;
+@media (min-width:900px){
 
-  width:58px;
-  height:58px;
+  .app{
+    max-width:430px;
+    margin:auto;
+    border-left:1px solid rgba(255,255,255,.05);
+    border-right:1px solid rgba(255,255,255,.05);
+  }
 
-  border-radius:50%;
-
-  background:rgba(255,255,255,.05);
-  border:1px solid rgba(255,255,255,.08);
-
-  display:flex;
-  align-items:center;
-  justify-content:center;
-
-  color:white;
-  font-size:28px;
-
-  backdrop-filter:blur(10px);
-
-  cursor:pointer;
-}
-
-.back-btn:active{
-  transform:scale(.94);
 }
 
 </style>
@@ -254,65 +295,65 @@ body{
 
 <body>
 
-<div class="wrapper" id="wrapper">
+<div class="app" id="app">
 
-  <!-- =====================
-       CAPA
-  ====================== -->
+    <!-- PAGINA DE BAIXO -->
+    <section class="page second-page">
 
-  <section class="page cover">
+        <div class="second-placeholder">
+          SECOND PAGE
+        </div>
 
-      <div class="slide-button" onclick="openSecondPage()">
-        <div class="arrow">➜</div>
-      </div>
+    </section>
 
-      <div class="center-box">
+    <!-- CAPA SOBREPOSTA -->
+    <section class="page cover-page">
 
-          <div class="logo-wrap">
-              <img src="logo.png" alt="ArcShield Logo">
-          </div>
+        <div class="slide-btn" onclick="togglePages()">
+          ➜
+        </div>
 
-          <div class="title">ARCSHIELD</div>
+        <div class="center-box">
 
-          <div class="subtitle">
-            SECURITY • DEFENSE • ARC
-          </div>
+            <div class="logo-box">
+              <img src="logo.png" alt="logo">
+            </div>
 
-      </div>
+            <div class="title">
+              ARCSHIELD
+            </div>
 
-  </section>
+            <div class="sub">
+              SECURITY • DEFENSE • ARC
+            </div>
 
-  <!-- =====================
-       PAGE 2
-  ====================== -->
+        </div>
 
-  <section class="page second">
-
-      <div class="back-btn" onclick="backToCover()">
-        ←
-      </div>
-
-      <div class="placeholder">
-        SECOND PAGE
-      </div>
-
-  </section>
+    </section>
 
 </div>
 
 <script>
 
-const wrapper = document.getElementById("wrapper");
+const app = document.getElementById("app");
 
-function openSecondPage(){
-  wrapper.style.transform = "translateX(-100vw)";
+let opened = false;
+
+function togglePages(){
+
+  opened = !opened;
+
+  if(opened){
+    app.classList.add("open");
+  }else{
+    app.classList.remove("open");
+  }
+
 }
 
-function backToCover(){
-  wrapper.style.transform = "translateX(0)";
-}
-
-/* swipe mobile */
+/* =========================
+   SWIPE MOBILE
+========================= */
 
 let startX = 0;
 
@@ -323,14 +364,17 @@ document.addEventListener("touchstart",(e)=>{
 document.addEventListener("touchend",(e)=>{
 
   let endX = e.changedTouches[0].clientX;
+
   let diff = startX - endX;
 
-  if(diff > 80){
-    openSecondPage();
+  if(diff > 70){
+    app.classList.add("open");
+    opened = true;
   }
 
-  if(diff < -80){
-    backToCover();
+  if(diff < -70){
+    app.classList.remove("open");
+    opened = false;
   }
 
 });
